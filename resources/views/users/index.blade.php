@@ -45,9 +45,17 @@
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                                 @if ($user->is_active)
-                                    <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/20">Active</span>
+                                    <form action="{{ route('users.toggleActive', $user->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-300 focus:ring-2 focus:ring-green-500">Deactivate</button>
+                                    </form>
                                 @else
-                                    <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/20">Inactive</span>
+                                    <form action="{{ route('users.toggleActive', $user->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-300 focus:ring-2 focus:ring-red-500">Activate</button>
+                                    </form>
                                 @endif
                             </td>
                             <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">

@@ -40,6 +40,16 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
+    // Change te user status
+    
+    public function toggleActive(User $user)
+    {
+        $user->is_active = !$user->is_active; // Cambiar el estado de 'is_active'
+        $user->save();
+
+        return redirect()->route('users.index')->with('success', 'User status updated successfully.');
+    }
+
     public function update(Request $request, User $user)
     {
         $validatedData = $request->validate([
