@@ -3,71 +3,69 @@
 @section('title', 'Edit Product')
 
 @section('content')
-<div class="max-w-2xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-semibold text-white">Edit Product</h1>
-        <a href="{{ route('products.index') }}" class="text-gray-400 hover:text-white">
+<div class="mx-auto max-w-2xl">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold leading-6">Edit Product</h1>
+            <p class="mt-2 text-sm text-gray-400">Update the details of your product.</p>
+        </div>
+        <a href="{{ route('products.index') }}" class="text-sm text-gray-400 hover:text-white">
             Back to Products
         </a>
     </div>
 
-    <div class="bg-black border border-gray-800 rounded-lg p-6">
-        <form action="{{ route('products.update', $product->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="space-y-4">
+    <form action="{{ route('products.update', $product->id) }}" method="POST" class="mt-8">
+        @csrf
+        @method('PUT')
+        <div class="rounded-xl border border-white/10 bg-gray-900/50 p-6">
+            <div class="space-y-6">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-300">Name</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $product->name) }}" 
-                           class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                           required>
-                    @error('name')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                    @enderror
+                    <label for="name" class="block text-sm font-medium leading-6 text-white">Name</label>
+                    <div class="mt-2">
+                        <input type="text" name="name" id="name" value="{{ old('name', $product->name) }}" required
+                               class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="price" class="block text-sm font-medium leading-6 text-white">Price</label>
+                        <div class="mt-2">
+                            <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}" step="0.01" required
+                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="stock" class="block text-sm font-medium leading-6 text-white">Stock</label>
+                        <div class="mt-2">
+                            <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock) }}" required
+                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                        </div>
+                    </div>
                 </div>
 
                 <div>
-                    <label for="price" class="block text-sm font-medium text-gray-300">Price</label>
-                    <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}" step="0.01"
-                           class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                           required>
-                    @error('price')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="stock" class="block text-sm font-medium text-gray-300">Stock</label>
-                    <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock) }}"
-                           class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                           required>
-                    @error('stock')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
-                    <textarea name="description" id="description" rows="3"
-                              class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('description', $product->description) }}</textarea>
-                    @error('description')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="flex justify-end space-x-3 mt-6">
-                    <a href="{{ route('products.index') }}"
-                       class="inline-flex justify-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                            class="inline-flex justify-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        Update Product
-                    </button>
+                    <label for="description" class="block text-sm font-medium leading-6 text-white">Description</label>
+                    <div class="mt-2">
+                        <textarea name="description" id="description" rows="4"
+                                  class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">{{ old('description', $product->description) }}</textarea>
+                    </div>
                 </div>
             </div>
-        </form>
-    </div>
+
+            <div class="mt-6 flex items-center justify-end gap-x-4">
+                <a href="{{ route('products.index') }}"
+                   class="rounded-md px-3 py-2 text-sm font-semibold text-white hover:bg-white/10">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm transition-all hover:bg-gray-200">
+                    Update Product
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 @endsection
 
