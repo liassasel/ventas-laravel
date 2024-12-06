@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard')</title>
-    @vite('resources/css/app.css')
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>@yield('title')</title>
+        @vite('resources/css/app.css')
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+    </head>
 <body class="h-full bg-black text-white" x-data="{ darkMode: true, sidebarOpen: false }" x-init="darkMode = JSON.parse(localStorage.getItem('darkMode')) || true; $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))">
     <div class="min-h-full" :class="{ 'dark': darkMode }">
         <!-- Sidebar -->
@@ -115,7 +116,7 @@
                 <div class="py-6">
                     <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                         <div class="border-b border-gray-800 pb-5 sm:flex sm:items-center sm:justify-between">
-                            <h1 class="text-2xl font-semibold text-white">@yield('header', 'Dashboard')</h1>
+                            <h1 class="text-2xl font-semibold text-white">@yield('header')</h1>
                             <div class="mt-3 flex sm:mt-0 sm:ml-4">
                                 <div class="ml-3 relative" x-data="{ open: false }">
                                     <div>
@@ -127,7 +128,12 @@
                                     <div x-show="open" @click.away="open = false" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
                                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
-                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-2">Sign out</a>
+                                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-2">
+                                            Sign out
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +160,31 @@
             </main>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('logout-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/login';
+                    } else {
+                        console.error('Logout failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+        </script>
 </body>
 </html>
 
