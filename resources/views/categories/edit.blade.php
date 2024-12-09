@@ -35,24 +35,6 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label for="price_soles" class="block text-sm font-medium leading-6 text-white">Price (Soles)</label>
-                        <div class="mt-2">
-                            <input type="number" name="price_soles" id="price_soles" value="{{ old('price_soles', $product->price_soles) }}" step="0.01" required
-                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="stock" class="block text-sm font-medium leading-6 text-white">Stock</label>
-                        <div class="mt-2">
-                            <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock) }}" required
-                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
-                        </div>
-                    </div>
-                </div>
-
                 <div>
                     <label for="category_id" class="block text-sm font-medium leading-6 text-white">Category</label>
                     <div class="mt-2">
@@ -63,8 +45,29 @@
                                 <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
+                                @foreach($category->children as $child)
+                                    <option value="{{ $child->id }}" {{ $product->category_id == $child->id ? 'selected' : '' }}>
+                                        -- {{ $child->name }}
+                                    </option>
+                                @endforeach
                             @endforeach
                         </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="price_soles" class="block text-sm font-medium leading-6 text-white">Price (Soles)</label>
+                    <div class="mt-2">
+                        <input type="number" name="price_soles" id="price_soles" value="{{ old('price_soles', $product->price_soles) }}" step="0.01" required
+                               class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="stock" class="block text-sm font-medium leading-6 text-white">Stock</label>
+                    <div class="mt-2">
+                        <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock) }}" required
+                               class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
                     </div>
                 </div>
 

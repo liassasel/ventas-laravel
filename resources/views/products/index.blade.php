@@ -6,7 +6,7 @@
 <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
         <h1 class="text-2xl font-semibold leading-6 text-white">Products</h1>
-        <p class="mt-2 text-sm text-gray-400">Manage your product inventory including names, prices, and stock levels.</p>
+        <p class="mt-2 text-sm text-gray-400">A list of all the products in your electronics store.</p>
     </div>
     <div class="mt-4 sm:ml-16 sm:mt-0">
         <a href="{{ route('products.create') }}" 
@@ -23,10 +23,12 @@
                 <table class="min-w-full divide-y divide-gray-800">
                     <thead class="bg-gray-900">
                         <tr>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Code</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Name</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Category</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price (Soles)</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price (Dollars)</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Stock</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Description</th>
                             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                 <span class="sr-only">Actions</span>
                             </th>
@@ -35,10 +37,12 @@
                     <tbody class="divide-y divide-gray-800">
                         @foreach($products as $product)
                             <tr class="hover:bg-white/5">
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->code ?? 'N/A' }}</td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->name }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">${{ number_format($product->price, 2) }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->category->name ?? 'Uncategorized' }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">S/. {{ number_format($product->price_soles ?? 0, 2) }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">$ {{ number_format($product->price_dollars ?? 0, 2) }}</td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->stock }}</td>
-                                <td class="px-3 py-4 text-sm text-gray-400">{{ Str::limit($product->description, 50) }}</td>
                                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                     <a href="{{ route('products.edit', $product->id) }}" class="text-[#0070f3] hover:text-[#0761d1]">Edit</a>
                                     <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline-block ml-3">
