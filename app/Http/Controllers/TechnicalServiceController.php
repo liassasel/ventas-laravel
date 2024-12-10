@@ -34,6 +34,7 @@ class TechnicalServiceController extends Controller
             'repair_status' => 'required|in:pending,in_progress,repaired,unrepairable',
             'delivery_status' => 'required|in:not_delivered,delivered',
             'order_date' => 'required|date',
+            'user_id' => 'required|exists:users,id' // Change
         ]);
 
         $validatedData['seller_id'] = Auth::id();
@@ -68,6 +69,7 @@ class TechnicalServiceController extends Controller
             'repair_status' => 'required|in:pending,in_progress,repaired,unrepairable',
             'delivery_status' => 'required|in:not_delivered,delivered',
             'order_date' => 'required|date',
+            'user_id' => 'required|exists:users,id' // Change
         ]);
 
         $technicalService->update($validatedData);

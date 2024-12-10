@@ -56,8 +56,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     
-    Route::get('/techical_service', [CategoryController::class, 'index'])->name('technical_service.index');
-    Route::get('/techical_service/create', [CategoryController::class, 'create'])->name('technical_service.create');
-    Route::post('/techical_service', [CategoryController::class, 'store'])->name('technical_service.store');
+    Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
+    Route::get('/services/create', [TechnicalServiceController::class, 'create'])->name('technical_service.create');
+    Route::post('/services', [TechnicalServiceController::class, 'store'])->name('technical_service.store');
 
 });

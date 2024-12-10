@@ -30,6 +30,7 @@ class TechnicalService extends Model
         'repair_status',
         'delivery_status',
         'seller_id',
+        'user_id', // Change here
         'order_date',
     ];
 
