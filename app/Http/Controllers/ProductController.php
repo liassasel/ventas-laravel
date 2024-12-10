@@ -72,11 +72,11 @@ class ProductController extends Controller
     {
         $validatedData = $request->validate([
             'code' => 'required|unique:products,code,' . $product->id . '|max:255',
+            'name' => 'required|max:255',
             'serial' => 'nullable|max:255',
             'model' => 'nullable|max:255',
             'brand' => 'nullable|max:255',
             'color' => 'nullable|max:255',
-            'name' => 'required|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'currency' => 'required|in:PEN,USD',

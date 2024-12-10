@@ -26,8 +26,13 @@
                             <tr>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Code</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Name</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Serial</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Model</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Brand</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Color</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Category</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price $</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Price S/.</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Currency</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Stock</th>
                                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -40,9 +45,18 @@
                                 <tr class="hover:bg-white/5">
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->code ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->name }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->serial }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->model }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->brand }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $product->color }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->category->name ?? 'Uncategorized' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
-                                        {{ $product->currency === 'USD' ? '$' : 'S/.' }} {{ number_format($product->price, 2) }}
+                                        {{ $product->currency === 'USD' ? '$' : '$' }} {{ number_format($product->price_dollars, 2) }}
+                                        
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                                        {{ $product->currency === 'PEN' ? 'S/.' : 'S/.' }} {{ number_format($product->price_soles, 2) }}
+                                        
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->currency }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->stock }}</td>

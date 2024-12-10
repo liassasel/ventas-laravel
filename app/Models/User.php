@@ -30,5 +30,21 @@ class User extends Authenticatable
     {
         return $this->is_admin;
     }
+
+    /**
+     * Get the technical services created by this user.
+     */
+    public function technicalServices()
+    {
+        return $this->hasMany(TechnicalService::class, 'user_id');
+    }
+
+    /**
+     * Get the technical services where this user is the seller.
+     */
+    public function salesServices()
+    {
+        return $this->hasMany(TechnicalService::class, 'seller_id');
+    }
 }
 

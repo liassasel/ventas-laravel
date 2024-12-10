@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TechnicalServiceController;
 
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login');
@@ -17,6 +18,8 @@ Route::resource('products', ProductController::class);
 
 // Rutas de usuarios
 Route::resource('users', UserController::class);
+
+Route::resource('technical_services', TechnicalServiceController::class);
 
 // Asegúrese de que todas las rutas web estén dentro de un grupo web
 Route::middleware(['auth'])->group(function () {
@@ -51,5 +54,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
 
+
+    
+    Route::get('/techical_service', [CategoryController::class, 'index'])->name('technical_service.index');
+    Route::get('/techical_service/create', [CategoryController::class, 'create'])->name('technical_service.create');
+    Route::post('/techical_service', [CategoryController::class, 'store'])->name('technical_service.store');
 
 });
