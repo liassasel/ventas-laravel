@@ -14,6 +14,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'is_technician',
     ];
 
     protected $hidden = [
@@ -24,11 +25,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
+        'is_technician' => 'boolean',
     ];
 
     public function isAdmin()
     {
         return $this->is_admin;
+    }
+
+    public function isTechnician()
+    {
+        return $this->is_technician;
     }
 
     /**

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('technical_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('seller_id')->constrained('users')->onDelete('cascade');
             $table->string('client_name');
             $table->string('client_phone');
             $table->string('client_dni')->nullable();
@@ -27,11 +27,10 @@ return new class extends Migration
             $table->text('problem');
             $table->text('solution')->nullable();
             $table->decimal('service_price', 10, 2);
-            $table->enum('status', ['pending', 'in_progress', 'completed', 'delivered'])->default('pending');
-            $table->enum('repair_status', ['pending', 'in_progress', 'repaired', 'unrepairable'])->default('pending');
-            $table->enum('delivery_status', ['not_delivered', 'delivered'])->default('not_delivered');
-            $table->foreignId('seller_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('order_date')->useCurrent();
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'delivered']);
+            $table->enum('repair_status', ['pending', 'in_progress', 'repaired', 'unrepairable']);
+            $table->enum('delivery_status', ['not_delivered', 'delivered']);
+            $table->datetime('order_date');
             $table->timestamps();
         });
     }

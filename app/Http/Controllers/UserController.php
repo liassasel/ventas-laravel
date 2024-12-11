@@ -26,6 +26,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'is_admin' => 'boolean',
+            'is_technician' => 'boolean',
             'is_active' => 'boolean',
         ]);
 
@@ -34,6 +35,7 @@ class UserController extends Controller
         $user->email = $validatedData['email'];
         $user->password = Hash::make($validatedData['password']);
         $user->is_admin = $request->has('is_admin');
+        $user->is_technician = $request->has('is_technician');
         $user->is_active = $request->has('is_active');
         $user->save();
 
@@ -56,6 +58,7 @@ class UserController extends Controller
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'is_admin' => 'boolean',
+            'is_technician' => 'boolean',
             'is_active' =>  'boolean',
         ]);
 

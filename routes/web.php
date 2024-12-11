@@ -59,5 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
     Route::get('/services/create', [TechnicalServiceController::class, 'create'])->name('technical_service.create');
     Route::post('/services', [TechnicalServiceController::class, 'store'])->name('technical_service.store');
+    Route::get('/services/{technicalService}/edit', [TechnicalServiceController::class, 'edit'])->name('technical_service.edit');
+    Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
+    Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
 
 });

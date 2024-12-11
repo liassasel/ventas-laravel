@@ -30,7 +30,6 @@ class TechnicalService extends Model
         'repair_status',
         'delivery_status',
         'seller_id',
-        'user_id', // Change here
         'order_date',
     ];
 
@@ -40,17 +39,6 @@ class TechnicalService extends Model
         'service_price' => 'decimal:2',
     ];
 
-    /**
-     * Get the user that created this technical service.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the seller associated with this technical service.
-     */
     public function seller()
     {
         return $this->belongsTo(User::class, 'seller_id');

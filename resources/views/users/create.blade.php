@@ -64,6 +64,12 @@
                 </div>
 
                 <div class="flex items-center">
+                    <input type="checkbox" name="is_technician" id="is_technician" value="1" {{ old('is_technician') ? 'checked' : '' }}
+                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="is_technician" class="ml-2 block text-sm text-white">Is it technical</label>
+                </div>
+
+                <div class="flex items-center">
                     <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                     <label for="is_active" class="ml-2 block text-sm text-white">Is Active</label>
