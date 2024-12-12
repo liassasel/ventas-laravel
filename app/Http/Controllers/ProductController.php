@@ -16,9 +16,21 @@ class ProductController extends Controller
         $this->currencyService = $currencyService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->get();
+        $query = Product::with('category');
+
+        // Filtrar por fecha si se proporciona
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // Ordenar por fecha de creación (más reciente primero)
+        $query->orderBy('created_at', 'desc');
+
+        // Paginar los resultados
+        $products = $query->paginate(10);
+
         $categories = Category::all();
         return view('products.index', compact('products', 'categories'));
     }

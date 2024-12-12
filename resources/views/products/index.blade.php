@@ -17,6 +17,26 @@
         </div>
     </div>
 
+    <form action="{{ route('products.index') }}" method="GET" class="space-y-4">
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <label for="start_date" class="block text-sm font-medium text-gray-400">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}"
+                       class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div class="flex-1">
+                <label for="end_date" class="block text-sm font-medium text-gray-400">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ request('end_date') }}"
+                       class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+        </div>
+        <div>
+            <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Search
+            </button>
+        </div>
+    </form>
+
     <div class="mt-8 flow-root">
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle">
@@ -52,11 +72,9 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->category->name ?? 'Uncategorized' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
                                         {{ $product->currency === 'USD' ? '$' : '$' }} {{ number_format($product->price_dollars, 2) }}
-                                        
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">
                                         {{ $product->currency === 'PEN' ? 'S/.' : 'S/.' }} {{ number_format($product->price_soles, 2) }}
-                                        
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->currency }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $product->stock }}</td>
@@ -77,6 +95,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="mt-6">
+        {{ $products->links() }}
     </div>
 
     <div class="mt-8">

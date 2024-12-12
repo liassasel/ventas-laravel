@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -26,6 +27,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
         'is_technician' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function isAdmin()
@@ -52,6 +54,31 @@ class User extends Authenticatable
     public function salesServices()
     {
         return $this->hasMany(TechnicalService::class, 'seller_id');
+    }
+
+    public function canAccessSystem()
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        $now = Carbon::now();
+        $dayOfWeek = $now->dayOfWeek;
+
+        if ($dayOfWeek === Carbon::SUNDAY) {
+            return false;
+        }
+
+        $settings = SystemSetting::first();
+
+        if (!$settings->is_system_active) {
+            return false;
+        }
+
+        $startTime = Carbon::createFromTimeString($settings->system_start_time);
+        $endTime = Carbon::createFromTimeString($settings->system_end_time);
+
+        return $now->between($startTime, $endTime);
     }
 }
 
