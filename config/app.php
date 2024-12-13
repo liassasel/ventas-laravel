@@ -1,4 +1,6 @@
+
 <?php
+use App\Providers\Midd1ewareServiceProvider;
 
 return [
 
@@ -122,5 +124,11 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    'providers' => [
+    // Other providers...
+    App\Providers\MiddlewareServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+],
 
 ];

@@ -60,8 +60,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
     Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
 
-    // New routes for system settings
-    Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+    });
 });
 
