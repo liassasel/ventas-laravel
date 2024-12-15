@@ -60,9 +60,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
     Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
 
-    Route::middleware(['admin'])->group(function () {
+    Route::group(['middleware' => ['auth']], function () {
         Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/deactivate-non-admins', [SystemSettingController::class, 'deactivateNonAdmins'])
+            ->name('settings.deactivateNonAdmins');
     });
 });
 
