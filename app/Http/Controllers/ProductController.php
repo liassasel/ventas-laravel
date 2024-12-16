@@ -20,7 +20,6 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-
         $query = Product::with('mainStore');
 
         if ($request->filled('store_id')) {
@@ -29,19 +28,14 @@ class ProductController extends Controller
 
         $stores = Store::all();
 
-
-
         $query = Product::with('category');
 
-        // Filtrar por fecha si se proporciona
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
-        // Ordenar por fecha de creación (más reciente primero)
         $query->orderBy('created_at', 'desc');
 
-        // Paginar los resultados
         $products = $query->paginate(10);
 
         $categories = Category::all();
@@ -52,46 +46,54 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $stores = Store::all();
-        return view('products.create', compact('categories', 'stores',));
+        return view('products.create', compact('categories', 'stores'));
     }
 
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'code' => 'required|unique:products|max:255',
-            'serial' => 'required|array',
-            'serial.*' => 'required|string|distinct',
-            'model' => 'nullable|max:255',
-            'brand' => 'nullable|max:255',
-            'color' => 'nullable|max:255',
-            'name' => 'required|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'currency' => 'required|in:PEN,USD',
-            'stock' => 'required|integer|min:0',
-            'main_store_id' => 'required|exists:stores,id',
-            'category_id' => 'required|exists:categories,id',
-        ], [
-            'code.unique' => 'The product code has already been registered.',
+{
+    // Validación de datos
+    $validatedData = $request->validate([
+        'code' => 'required|max:255',
+        'serial' => 'required|array',
+        'serial.*' => 'required|string|max:255|unique:products,serial',
+        'model' => 'nullable|max:255',
+        'brand' => 'nullable|max:255',
+        'color' => 'nullable|max:255',
+        'name' => 'required|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'currency' => 'required|in:PEN,USD',
+        'stock' => 'required|integer|min:1',
+        'main_store_id' => 'required|exists:stores,id',
+        'category_id' => 'required|exists:categories,id',
+    ]);
+
+    // Crear registros individuales de productos basados en cada serial
+    foreach ($validatedData['serial'] as $serial) {
+        Product::create([
+            'code' => $validatedData['code'],
+            'serial' => $serial,
+            'model' => $validatedData['model'],
+            'brand' => $validatedData['brand'],
+            'color' => $validatedData['color'],
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'price_dollars' => $validatedData['currency'] === 'USD'
+                ? $validatedData['price']
+                : $this->currencyService->convertSolesToDollars($validatedData['price']),
+            'price_soles' => $validatedData['currency'] === 'PEN'
+                ? $validatedData['price']
+                : $this->currencyService->convertDollarsToSoles($validatedData['price']),
+            'currency' => $validatedData['currency'],
+            'stock' => 1, // Por defecto el stock de cada producto es 1
+            'main_store_id' => $validatedData['main_store_id'],
+            'category_id' => $validatedData['category_id'],
+            'status' => 1, // Producto disponible
         ]);
-
-        if ($validatedData['currency'] === 'PEN') {
-            $validatedData['price_soles'] = $validatedData['price'];
-            $validatedData['price_dollars'] = $this->currencyService->convertSolesToDollars($validatedData['price']);
-        } else {
-            $validatedData['price_dollars'] = $validatedData['price'];
-            $validatedData['price_soles'] = $this->currencyService->convertDollarsToSoles($validatedData['price']);
-        }
-
-        unset($validatedData['price']);
-        unset($validatedData['serials']);
-
-        Product::create($validatedData);
-
-        
-
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
+
+    return redirect()->route('products.index')->with('success', 'Products created successfully.');
+}
 
     public function edit(Product $product)
     {
@@ -116,8 +118,6 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'main_store_id' => 'required|exists:stores,id',
             'category_id' => 'required|exists:categories,id',
-        ], [
-            'code.unique' => 'The product code has already been registered.',
         ]);
 
         if ($validatedData['currency'] === 'PEN') {
@@ -131,24 +131,6 @@ class ProductController extends Controller
         unset($validatedData['price']);
 
         $product->update($validatedData);
-
-        $stores = Store::all();
-            $serialIndex = 0;
-            foreach ($stores as $store) {
-                $quantity = $store->id == $request->input('main_store_id') ? count($request->input('serials')) : 0;
-                $inventory = Inventory::create([
-                    'store_id' => $store->id,
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                ]);
-
-                // Agregar seriales solo para la tienda principal
-                if ($store->id == $request->input('main_store_id')) {
-                    foreach ($request->input('serials') as $serial) {
-                        $inventory->serials()->create(['serial_number' => $serial]);
-                    }
-                }
-            }
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
