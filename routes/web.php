@@ -7,6 +7,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TechnicalServiceController;
 use App\Http\Controllers\SystemSettingController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -18,7 +21,14 @@ Route::resource('products', ProductController::class);
 // Rutas de usuarios
 Route::resource('users', UserController::class);
 
+// Rutas de Tecnicos
 Route::resource('technical_services', TechnicalServiceController::class);
+
+
+Route::resource('stores', StoreController::class);
+
+
+Route::resource('sales', SaleController::class);
 
 // Asegúrese de que todas las rutas web estén dentro de un grupo web
 Route::middleware(['auth'])->group(function () {
@@ -53,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
     Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
 
+    // Tech Route
     Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
     Route::get('/services/create', [TechnicalServiceController::class, 'create'])->name('technical_service.create');
     Route::post('/services', [TechnicalServiceController::class, 'store'])->name('technical_service.store');
@@ -60,6 +71,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
     Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
 
+    // Settings Route, only accessible by admin
     Route::group(['middleware' => ['auth']], function () {
         Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
