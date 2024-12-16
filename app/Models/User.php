@@ -56,6 +56,11 @@ class User extends Authenticatable
         return $this->hasMany(TechnicalService::class, 'seller_id');
     }
 
+    public function sales()
+{
+    return $this->hasMany(Sale::class);
+}
+
     public function canAccessSystem()
     {
         if ($this->is_admin) {

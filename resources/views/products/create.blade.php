@@ -46,15 +46,6 @@
                 <h2 class="text-lg font-medium text-white mb-4">Product Details</h2>
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label for="serial" class="block text-sm font-medium leading-6 text-white">Serial</label>
-                        <div class="mt-2">
-                            <input type="text" name="serial" id="serial"
-                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-                                   placeholder="Enter product serial">
-                        </div>
-                    </div>
-
-                    <div>
                         <label for="model" class="block text-sm font-medium leading-6 text-white">Model</label>
                         <div class="mt-2">
                             <input type="text" name="model" id="model"
@@ -115,7 +106,34 @@
                                    placeholder="0">
                         </div>
                     </div>
+
+                    <div>
+                        <label for="main_store_id" class="block text-sm font-medium leading-6 text-white">Main Store</label>
+                        <div class="mt-2">
+                            <select name="main_store_id" id="main_store_id" required
+                                    class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                                @foreach($stores as $store)
+                                    <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Serials -->
+            <div class="mb-8">
+                <h2 class="text-lg font-medium text-white mb-4">Serial Numbers</h2>
+                <div id="serial-inputs">
+                    <div class="mb-2">
+                        <input type="text" name="serials[]" required
+                               class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                               placeholder="Enter serial number">
+                    </div>
+                </div>
+                <button type="button" id="add-serial" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                    Add Another Serial
+                </button>
             </div>
 
             <!-- Category and Description -->
@@ -159,5 +177,38 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addSerialButton = document.getElementById('add-serial');
+    const serialInputs = document.getElementById('serial-inputs');
+    const stockInput = document.getElementById('stock');
+
+    addSerialButton.addEventListener('click', function() {
+        const newInput = document.createElement('div');
+        newInput.className = 'mb-2';
+        newInput.innerHTML = `
+            <input type="text" name="serials[]" required
+                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                   placeholder="Enter serial number">
+        `;
+        serialInputs.appendChild(newInput);
+        
+        // Update stock count
+        stockInput.value = serialInputs.children.length;
+    });
+
+    // Initialize stock count
+    stockInput.value = serialInputs.children.length;
+
+    // Update stock count when removing serial inputs
+    serialInputs.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-serial')) {
+            event.target.closest('.mb-2').remove();
+            stockInput.value = serialInputs.children.length;
+        }
+    });
+});
+</script>
 @endsection
 

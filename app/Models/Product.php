@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
@@ -29,4 +29,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function mainStore()
+    {
+        return $this->belongsTo(Store::class, 'main_store_id');
+    }
 }
+

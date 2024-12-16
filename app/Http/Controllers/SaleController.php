@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\Inventory;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SaleController extends Controller
 {
@@ -40,7 +42,7 @@ class SaleController extends Controller
         try {
             $sale = Sale::create([
                 'store_id' => $validatedData['store_id'],
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(), // Fixed: Using Auth facade properly
                 'total_amount' => 0,
                 'status' => 'pending',
             ]);
@@ -58,7 +60,7 @@ class SaleController extends Controller
                         ->first();
 
                     if (!$inventory || $inventory->quantity < $quantity) {
-                        throw new \Exception("Inventario insuficiente para el producto {$product->name}");
+                        throw new \Exception("Insufficient inventory for product {$product->name}");
                     }
 
                     $inventory->quantity -= $quantity;
@@ -69,7 +71,7 @@ class SaleController extends Controller
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'quantity' => $quantity,
-                    'price' => $product->price,
+                    'price' => $product->price_soles, // Using the price in soles
                     'is_service' => $isService,
                 ]);
 
@@ -89,10 +91,10 @@ class SaleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('sales.show', $sale)->with('success', 'Venta realizada exitosamente.');
+            return redirect()->route('sales.show', $sale)->with('success', 'Sale completed successfully.');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors(['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 

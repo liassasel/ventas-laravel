@@ -9,7 +9,15 @@
             <h1 class="text-2xl font-semibold leading-6 text-white">Products</h1>
             <p class="mt-2 text-sm text-gray-400">A list of all the products in your electronics store.</p>
         </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0">
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex sm:space-x-4">
+            <select id="store-selector" onchange="window.location.href='?store_id=' + this.value" class="rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <option value="">Todas las tiendas</option>
+                @foreach($stores as $store)
+                    <option value="{{ $store->id }}" {{ request('store_id') == $store->id ? 'selected' : '' }}>
+                        {{ $store->name }}
+                    </option>
+                @endforeach
+            </select>
             <a href="{{ route('products.create') }}" 
                class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black transition-all hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Add Product
