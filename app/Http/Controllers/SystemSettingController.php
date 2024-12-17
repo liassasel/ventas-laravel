@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class SystemSettingController extends Controller
 {
-    
-
     public function index()
     {
         $settings = SystemSetting::first();
@@ -23,7 +20,7 @@ class SystemSettingController extends Controller
             ]);
         }
 
-        return view('settings.index', compact('settings'));
+        return view('admin.settings.index', compact('settings'));
     }
 
     public function update(Request $request)
@@ -45,13 +42,16 @@ class SystemSettingController extends Controller
         $settings->is_system_active = $request->has('is_system_active');
         $settings->save();
 
-        return redirect()->route('settings.index')->with('success', 'Configuración actualizada correctamente.');
+        return redirect()->route('admin.settings')
+            ->with('success', 'Configuración actualizada correctamente.');
     }
 
     public function deactivateNonAdmins()
     {
         User::where('is_admin', false)->update(['is_active' => false]);
-        return redirect()->route('settings.index')->with('success', 'Se han desactivado todos los usuarios no administradores.');
+        
+        return redirect()->route('admin.settings')
+            ->with('success', 'Usuarios no administradores desactivados correctamente.');
     }
 }
 

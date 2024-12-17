@@ -15,20 +15,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Rutas de productos
-Route::resource('products', ProductController::class);
-
-// Rutas de usuarios
-Route::resource('users', UserController::class);
-
-// Rutas de Tecnicos
-Route::resource('technical_services', TechnicalServiceController::class);
-
-
-Route::resource('stores', StoreController::class);
-
-
-Route::resource('sales', SaleController::class);
 
 // Asegúrese de que todas las rutas web estén dentro de un grupo web
 Route::middleware(['auth'])->group(function () {
@@ -38,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Rutas de productos (ya existentes)
+    Route::resource('products', ProductController::class);
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
@@ -53,7 +40,29 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
+
+    // Tech Route
+    Route::resource('technical_services', TechnicalServiceController::class);
+    Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
+    Route::get('/services/create', [TechnicalServiceController::class, 'create'])->name('technical_service.create');
+    Route::post('/services', [TechnicalServiceController::class, 'store'])->name('technical_service.store');
+    Route::get('/services/{technicalService}/edit', [TechnicalServiceController::class, 'edit'])->name('technical_service.edit');
+    Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
+    Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
+
+    // Settings Route, only accessible by admin
+    Route::group(['middleware' => ['admin']], function () {
+
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Ruta de tiendas
+    Route::resource('stores', StoreController::class);
+
+    // Ruta de ventas
+    Route::resource('sales', SaleController::class);
+
     // Rutas de usuarios
+    Route::resource('users', UserController::class);
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -63,20 +72,12 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
     Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
 
-    // Tech Route
-    Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
-    Route::get('/services/create', [TechnicalServiceController::class, 'create'])->name('technical_service.create');
-    Route::post('/services', [TechnicalServiceController::class, 'store'])->name('technical_service.store');
-    Route::get('/services/{technicalService}/edit', [TechnicalServiceController::class, 'edit'])->name('technical_service.edit');
-    Route::put('/services/{technicalService}', [TechnicalServiceController::class, 'update'])->name('technical_service.update');
-    Route::delete('/services/{technicalService}', [TechnicalServiceController::class, 'destroy'])->name('technical_service.destroy');
-
-    // Settings Route, only accessible by admin
-    Route::group(['middleware' => ['auth']], function () {
-        Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+    Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
+        
+    Route::get('/settings', [SystemSettingController::class, 'index'])->name('admin.settings');
+        Route::post('/settings/update', [SystemSettingController::class, 'update'])->name('admin.settings.update');
         Route::post('/settings/deactivate-non-admins', [SystemSettingController::class, 'deactivateNonAdmins'])
-            ->name('settings.deactivateNonAdmins');
+            ->name('admin.settings.deactivate-non-admins');
     });
 });
 
