@@ -22,6 +22,7 @@ class Product extends Model
         'color',
         'price_dollars',
         'price_soles',
+        'main_store_id',
         'currency'
     ];
 

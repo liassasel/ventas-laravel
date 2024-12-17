@@ -20,25 +20,22 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::with('mainStore');
-
+        $query = Product::with(['category', 'mainStore']);
+    
         if ($request->filled('store_id')) {
             $query->where('main_store_id', $request->store_id);
         }
-
-        $stores = Store::all();
-
-        $query = Product::with('category');
-
+    
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
-
+    
         $query->orderBy('created_at', 'desc');
-
+    
         $products = $query->paginate(10);
-
         $categories = Category::all();
+        $stores = Store::all();
+    
         return view('products.index', compact('products', 'categories', 'stores'));
     }
 
@@ -50,57 +47,63 @@ class ProductController extends Controller
     }
 
     public function store(Request $request)
-{
-    // Validación de datos
-    $validatedData = $request->validate([
-        'code' => 'required|max:255',
-        'serial' => 'required|array',
-        'serial.*' => 'required|string|max:255|unique:products,serial',
-        'model' => 'nullable|max:255',
-        'brand' => 'nullable|max:255',
-        'color' => 'nullable|max:255',
-        'name' => 'required|max:255',
-        'description' => 'nullable|string',
-        'price' => 'required|numeric|min:0',
-        'currency' => 'required|in:PEN,USD',
-        'stock' => 'required|integer|min:1',
-        'main_store_id' => 'required|exists:stores,id',
-        'category_id' => 'required|exists:categories,id',
-    ]);
-
-    // Crear registros individuales de productos basados en cada serial
-    foreach ($validatedData['serial'] as $serial) {
-        Product::create([
-            'code' => $validatedData['code'],
-            'serial' => $serial,
-            'model' => $validatedData['model'],
-            'brand' => $validatedData['brand'],
-            'color' => $validatedData['color'],
-            'name' => $validatedData['name'],
-            'description' => $validatedData['description'],
-            'price_dollars' => $validatedData['currency'] === 'USD'
-                ? $validatedData['price']
-                : $this->currencyService->convertSolesToDollars($validatedData['price']),
-            'price_soles' => $validatedData['currency'] === 'PEN'
-                ? $validatedData['price']
-                : $this->currencyService->convertDollarsToSoles($validatedData['price']),
-            'currency' => $validatedData['currency'],
-            'stock' => 1, // Por defecto el stock de cada producto es 1
-            'main_store_id' => $validatedData['main_store_id'],
-            'category_id' => $validatedData['category_id'],
-            'status' => 1, // Producto disponible
+    {
+        $validatedData = $request->validate([
+            'code' => 'required|max:255',
+            'serial' => 'required|string',
+            'model' => 'nullable|max:255',
+            'brand' => 'nullable|max:255',
+            'color' => 'nullable|max:255',
+            'name' => 'required|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'currency' => 'required|in:PEN,USD',
+            'stock' => 'required|integer|min:1',
+            'main_store_id' => 'required|exists:stores,id',
+            'category_id' => 'required|exists:categories,id',
         ]);
+    
+        $serials = explode("\n", $validatedData['serial']);
+        $serials = array_map('trim', $serials);
+        $serials = array_filter($serials);
+    
+        $baseCode = $validatedData['code'];
+        
+        foreach ($serials as $index => $serial) {
+            // Generate a unique code by appending a counter to the base code
+            $uniqueCode = $baseCode . '-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT);
+            
+            Product::create([
+                'code' => $uniqueCode, // Use the unique code instead of the base code
+                'serial' => $serial,
+                'model' => $validatedData['model'],
+                'brand' => $validatedData['brand'],
+                'color' => $validatedData['color'],
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'price_dollars' => $validatedData['currency'] === 'USD'
+                    ? $validatedData['price']
+                    : $this->currencyService->convertSolesToDollars($validatedData['price']),
+                'price_soles' => $validatedData['currency'] === 'PEN'
+                    ? $validatedData['price']
+                    : $this->currencyService->convertDollarsToSoles($validatedData['price']),
+                'currency' => $validatedData['currency'],
+                'stock' => 1,
+                'main_store_id' => $validatedData['main_store_id'],
+                'category_id' => $validatedData['category_id'],
+                'status' => 1,
+            ]);
+        }
+    
+        return redirect()->route('products.index')->with('success', 'Products created successfully.');
     }
-
-    return redirect()->route('products.index')->with('success', 'Products created successfully.');
-}
+    
 
     public function edit(Product $product)
     {
         $categories = Category::all();
         $stores = Store::all();
-        $inventories = Inventory::where('product_id', $product->id)->get();
-        return view('products.edit', compact('product', 'categories', 'stores', 'inventory'));
+        return view('products.edit', compact('product', 'categories', 'stores'));
     }
 
     public function update(Request $request, Product $product)
@@ -142,3 +145,4 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }
+
