@@ -14,6 +14,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
             $table->string('status');
+            $table->string('cliente_nombre');
+            $table->string('cliente_telefono')->nullable();
+            $table->string('cliente_correo')->nullable();
+            $table->string('cliente_ruc')->nullable();
+            $table->string('cliente_dni')->nullable();
+            $table->string('numero_guia')->unique();
+            $table->dateTime('fecha_facturacion');
             $table->timestamps();
         });
     }

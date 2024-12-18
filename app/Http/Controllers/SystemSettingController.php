@@ -3,23 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class SystemSettingController extends Controller
 {
     public function index()
     {
-        $settings = SystemSetting::first();
-        
-        if (!$settings) {
-            $settings = SystemSetting::create([
+        $settings = SystemSetting::firstOrCreate(
+            ['id' => 1],
+            [
                 'system_start_time' => '08:00:00',
                 'system_end_time' => '19:00:00',
                 'is_system_active' => true,
-            ]);
-        }
-
+            ]
+        );
+        
         return view('admin.settings.index', compact('settings'));
     }
 
@@ -31,27 +30,20 @@ class SystemSettingController extends Controller
             'is_system_active' => 'boolean',
         ]);
 
-        $settings = SystemSetting::first();
-        
-        if (!$settings) {
-            $settings = new SystemSetting();
-        }
+        $settings = SystemSetting::firstOrCreate(['id' => 1]);
+        $settings->update([
+            'system_start_time' => $validatedData['system_start_time'],
+            'system_end_time' => $validatedData['system_end_time'],
+            'is_system_active' => $request->has('is_system_active'),
+        ]);
 
-        $settings->system_start_time = $validatedData['system_start_time'];
-        $settings->system_end_time = $validatedData['system_end_time'];
-        $settings->is_system_active = $request->has('is_system_active');
-        $settings->save();
-
-        return redirect()->route('admin.settings')
-            ->with('success', 'Configuración actualizada correctamente.');
+        return redirect()->route('admin.settings.index')->with('success', 'System settings updated successfully.');
     }
 
     public function deactivateNonAdmins()
     {
         User::where('is_admin', false)->update(['is_active' => false]);
-        
-        return redirect()->route('admin.settings')
-            ->with('success', 'Usuarios no administradores desactivados correctamente.');
+        return redirect()->route('admin.settings.index')->with('success', 'All non-admin users have been deactivated.');
     }
 }
 

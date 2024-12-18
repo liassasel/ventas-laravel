@@ -9,7 +9,23 @@ class Sale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['store_id', 'user_id', 'total_amount', 'status'];
+    protected $fillable = [
+        'store_id', 
+        'user_id', 
+        'total_amount', 
+        'status',
+        'cliente_nombre',
+        'cliente_telefono',
+        'cliente_correo',
+        'cliente_ruc',
+        'cliente_dni',
+        'numero_guia',
+        'fecha_facturacion'
+    ];
+
+    protected $casts = [
+        'fecha_facturacion' => 'datetime',
+    ];
 
     public function store()
     {

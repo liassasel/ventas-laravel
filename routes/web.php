@@ -74,10 +74,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
         
-    Route::get('/settings', [SystemSettingController::class, 'index'])->name('admin.settings');
-        Route::post('/settings/update', [SystemSettingController::class, 'update'])->name('admin.settings.update');
-        Route::post('/settings/deactivate-non-admins', [SystemSettingController::class, 'deactivateNonAdmins'])
-            ->name('admin.settings.deactivate-non-admins');
+    Route::get('/admin/settings', [SystemSettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('/admin/settings', [SystemSettingController::class, 'update'])->name('admin.settings.update');
+    Route::post('/admin/settings/deactivate-users', [SystemSettingController::class, 'deactivateNonAdmins'])->name('admin.settings.deactivateNonAdmins');
     });
 });
 
