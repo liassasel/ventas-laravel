@@ -35,5 +35,10 @@ class Product extends Model
     {
         return $this->belongsTo(Store::class, 'main_store_id');
     }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
 }
 

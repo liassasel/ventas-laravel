@@ -10,6 +10,7 @@ use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductSoldController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -60,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Ruta de ventas
     Route::resource('sales', SaleController::class);
+
+    Route::get('/products-sold', [ProductSoldController::class, 'index'])->name('products-sold.index');
 
     // Rutas de usuarios
     Route::resource('users', UserController::class);

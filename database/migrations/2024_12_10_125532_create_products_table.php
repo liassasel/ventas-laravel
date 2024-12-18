@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->string('color')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->timestamps();
         });
     }
