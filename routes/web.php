@@ -16,7 +16,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
 // Asegúrese de que todas las rutas web estén dentro de un grupo web
 Route::middleware(['auth'])->group(function () {
 
@@ -41,7 +40,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-
     // Tech Route
     Route::resource('technical_services', TechnicalServiceController::class);
     Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
@@ -56,30 +54,30 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Ruta de tiendas
-    Route::resource('stores', StoreController::class);
+        // Ruta de tiendas
+        Route::resource('stores', StoreController::class);
 
-    // Ruta de ventas
-    Route::resource('sales', SaleController::class);
+        // Ruta de ventas
+        Route::resource('sales', SaleController::class);
+        Route::get('/sales/get-products-by-store', [SaleController::class, 'getProductsByStore'])->name('sales.getProductsByStore');
 
-    Route::get('/products-sold', [ProductSoldController::class, 'index'])->name('products-sold.index');
+        Route::get('/products-sold', [ProductSoldController::class, 'index'])->name('products-sold.index');
 
-    // Rutas de usuarios
-    Route::resource('users', UserController::class);
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
-    Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
+        // Rutas de usuarios
+        Route::resource('users', UserController::class);
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
+        Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
 
-    Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
         
-    Route::get('/admin/settings', [SystemSettingController::class, 'index'])->name('admin.settings.index');
-    Route::post('/admin/settings', [SystemSettingController::class, 'update'])->name('admin.settings.update');
-    Route::post('/admin/settings/deactivate-users', [SystemSettingController::class, 'deactivateNonAdmins'])->name('admin.settings.deactivateNonAdmins');
+        Route::get('/admin/settings', [SystemSettingController::class, 'index'])->name('admin.settings.index');
+        Route::post('/admin/settings', [SystemSettingController::class, 'update'])->name('admin.settings.update');
+        Route::post('/admin/settings/deactivate-users', [SystemSettingController::class, 'deactivateNonAdmins'])->name('admin.settings.deactivateNonAdmins');
     });
 });
-

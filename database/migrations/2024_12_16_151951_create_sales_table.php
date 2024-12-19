@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('cliente_correo')->nullable();
             $table->string('cliente_ruc')->nullable();
             $table->string('cliente_dni')->nullable();
-            $table->string('numero_guia')->unique();
-            $table->dateTime('fecha_facturacion');
+            $table->string('numero_guia');
+            $table->datetime('fecha_facturacion');
             $table->timestamps();
         });
     }
