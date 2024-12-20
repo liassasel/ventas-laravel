@@ -15,10 +15,10 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->string('status');
             $table->string('cliente_nombre');
-            $table->string('cliente_telefono')->nullable();
-            $table->string('cliente_correo')->nullable();
-            $table->string('cliente_ruc')->nullable();
-            $table->string('cliente_dni')->nullable();
+            $table->string('cliente_telefono')->required();
+            $table->string('cliente_correo')->required();
+            $table->string('cliente_ruc')->required();
+            $table->string('cliente_dni')->required();
             $table->string('numero_guia');
             $table->datetime('fecha_facturacion');
             $table->timestamps();
@@ -30,4 +30,3 @@ return new class extends Migration
         Schema::dropIfExists('sales');
     }
 };
-
