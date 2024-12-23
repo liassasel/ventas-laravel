@@ -14,7 +14,6 @@ class TechnicalServiceController extends Controller
     {
         $query = TechnicalService::with('seller')->latest('order_date');
 
-        // Filter by date range if provided
         if ($request->filled('start_date')) {
             $query->whereDate('order_date', '>=', $request->start_date);
         }
@@ -22,14 +21,12 @@ class TechnicalServiceController extends Controller
             $query->whereDate('order_date', '<=', $request->end_date);
         }
 
-        // Filter by seller if provided
         if ($request->filled('seller_id')) {
             $query->where('seller_id', $request->seller_id);
         }
 
         $services = $query->get();
         
-        // Get all technicians (users who are either admin or technician)
         $sellers = User::where('is_admin', true)
                       ->orWhere('is_technician', true)
                       ->get();
@@ -39,7 +36,12 @@ class TechnicalServiceController extends Controller
 
     public function create()
     {
-        return view('technical_services.create');
+        $lastService = TechnicalService::latest('id')->first();
+        $lastNumber = $lastService ? intval(str_replace('GS-', '', $lastService->guide_number)) : 0;
+        $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+        $guideNumber = 'GS-' . $newNumber;
+
+        return view('technical_services.create', compact('guideNumber'));
     }
 
     public function store(Request $request)
@@ -50,7 +52,7 @@ class TechnicalServiceController extends Controller
             'client_dni' => 'nullable|string|max:20',
             'client_ruc' => 'nullable|string|max:20',
             'invoice_date' => 'nullable|date',
-            'guide_number' => 'nullable|string|max:255',
+            'guide_number' => 'required|string|max:255|unique:technical_services',
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'serial_number' => 'required|string|max:255',
@@ -67,11 +69,9 @@ class TechnicalServiceController extends Controller
             'order_date' => 'required|date',
         ]);
 
-        // Add seller_id to the validated data
         $validatedData['seller_id'] = Auth::id();
 
         try {
-            // For debugging: Log the data being saved
             Log::info('Attempting to create technical service with data:', $validatedData);
             
             $technicalService = TechnicalService::create($validatedData);
@@ -104,7 +104,7 @@ class TechnicalServiceController extends Controller
             'client_dni' => 'nullable|string|max:20',
             'client_ruc' => 'nullable|string|max:20',
             'invoice_date' => 'nullable|date',
-            'guide_number' => 'nullable|string|max:255',
+            'guide_number' => 'required|string|max:255|unique:technical_services,guide_number,' . $technicalService->id,
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'serial_number' => 'required|string|max:255',

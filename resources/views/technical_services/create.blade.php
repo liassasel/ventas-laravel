@@ -124,20 +124,20 @@
                 <h2 class="text-lg font-medium text-white mb-4">Diagnóstico y Solución</h2>
                 <div class="space-y-6">
                     <div>
-                        <label for="diagnosis" class="block text-sm font-medium leading-6 text-white">Diagnóstico</label>
-                        <div class="mt-2">
-                            <textarea name="diagnosis" id="diagnosis" rows="3" required
-                                      class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-                                      placeholder="Ingrese el diagnóstico del equipo"></textarea>
-                        </div>
-                    </div>
-
-                    <div>
                         <label for="problem" class="block text-sm font-medium leading-6 text-white">Problema</label>
                         <div class="mt-2">
                             <textarea name="problem" id="problem" rows="3" required
                                       class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
                                       placeholder="Describa el problema del equipo"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="diagnosis" class="block text-sm font-medium leading-6 text-white">Diagnóstico</label>
+                        <div class="mt-2">
+                            <textarea name="diagnosis" id="diagnosis" rows="3" required
+                                      class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                                      placeholder="Ingrese el diagnóstico del equipo"></textarea>
                         </div>
                     </div>
 
@@ -167,9 +167,8 @@
                     <div>
                         <label for="guide_number" class="block text-sm font-medium leading-6 text-white">Número de Guía</label>
                         <div class="mt-2">
-                            <input type="text" name="guide_number" id="guide_number"
-                                   class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-                                   placeholder="Ingrese el número de guía">
+                            <input type="text" name="guide_number" id="guide_number" value="{{ $guideNumber }}" readonly
+                                   class="block w-full rounded-md border-0 bg-gray-700 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 

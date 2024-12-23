@@ -141,6 +141,14 @@
                 </div>
             </div>
 
+            <div>
+                <label for="order_date" class="block text-sm font-medium leading-6 py-2 text-white">Fecha de Orden</label>
+                <div class="mt-2">
+                    <input type="datetime-local" name="order_date" id="order_date" required
+                            class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                </div>
+            </div>
+
             <div class="mt-6 flex items-center justify-end gap-x-4">
                 <a href="{{ route('technical_services.index') }}"
                    class="rounded-md px-3 py-2 text-sm font-semibold text-white hover:bg-white/10">
