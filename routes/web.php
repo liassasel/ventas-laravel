@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     // Settings Route, only accessible by admin
     Route::group(['middleware' => ['admin']], function () {
 
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Ruta de tiendas
         Route::resource('stores', StoreController::class);
