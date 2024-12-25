@@ -5,7 +5,6 @@
 @section('content')
 <div class="container mx-auto px-4 sm:px-8">
     <div class="py-8">
-        <h2 class="text-2xl font-semibold leading-tight mb-5">Dashboard de Ventas</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-green-700 rounded-lg shadow-md p-6">
@@ -16,6 +15,11 @@
             <div class=" rounded-lg bg-indigo-900 shadow-md p-6">
                 <h3 class="text-lg font-semibold mb-2">Productos</h3>
                 <p class="text-3xl font-bold">{{ $totalProducts ?? 0 }}</p>
+            </div>
+
+            <div class="bg-green-700 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-2">Proveedores</h3>
+                <p class="text-3xl font-bold">{{ $totalSuppliers ?? 0 }}</p>
             </div>
 
             <div class=" rounded-lg bg-indigo-300 shadow-md p-6">

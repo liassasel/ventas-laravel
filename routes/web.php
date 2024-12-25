@@ -41,6 +41,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
+    // Sales 
+    Route::resource('sales', SaleController::class);
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+
     // Tech Route
     Route::resource('technical_services', TechnicalServiceController::class);
     Route::get('/services', [TechnicalServiceController::class, 'index'])->name('technical_service.index');
@@ -69,11 +76,6 @@ Route::middleware(['auth'])->group(function () {
 
 
         // Ruta de ventas
-        Route::resource('sales', SaleController::class);
-        Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
-        Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
-        Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
-        Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
         Route::get('/sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit');
         Route::put('/sales/{sale}', [SaleController::class, 'update'])->name('sales.update');
         Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
