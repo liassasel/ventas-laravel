@@ -41,7 +41,7 @@ The system features an intuitive admin dashboard with sales analytics and a mini
 1. Clone the repository:
    ```bash
    git clone https://github.com/liassasel/ventas-laravel.git
-   cd electronics-store-management
+   cd ventas-laravel
    ```
 
 2. Install dependencies:
@@ -82,12 +82,12 @@ The system features an intuitive admin dashboard with sales analytics and a mini
 - Advanced analytics for sales trends.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [Proprietary License](LICENSE).
 
 ## Copyright and Legal Notice
-- **Copyright © liassasel/Aggelos.CA, 2024.**
+- **Copyright © liassasel, 2024.**
 - Unauthorized use, distribution, or modification of this software is strictly prohibited.
-- This system is the intellectual property of liassasel/Aggelos.CA. Any use without explicit permission may result in legal action.
+- This system is the intellectual property of liassasel. Any use without explicit permission may result in legal action.
 
 ---
 
