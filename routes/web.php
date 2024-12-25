@@ -61,6 +61,10 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['middleware' => ['admin']], function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/user-stats/{user}', [DashboardController::class, 'getUserStats'])->name('dashboard.user-stats');
+        Route::get('/user-stats/{user}', [DashboardController::class, 'getUserStats'])->name('user.stats');
+
+
 
         // Ruta de tiendas
         Route::resource('stores', StoreController::class);

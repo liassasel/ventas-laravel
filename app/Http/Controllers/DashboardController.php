@@ -11,168 +11,200 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $data = [
-            'totalProducts' => Product::count(),
-            'totalUsers' => User::count(),
-            'totalSuppliers' => Supplier::count(),
-            'totalSales' => Sale::count(),
-            'totalServices' => TechnicalService::count(),
-        ];
+        try {
+            $selectedPeriod = $request->input('period', 'month');
+            $customStartDate = $request->input('start_date');
+            $customEndDate = $request->input('end_date');
 
-        $stores = Store::all();
-        $users = User::all();
-        $selectedStore = $request->input('store_id', 'all');
-        $selectedUser = $request->input('user_id', 'all');
-        $selectedPeriod = $request->input('period', 'day');
-        $customStartDate = $request->input('start_date');
-        $customEndDate = $request->input('end_date');
+            $salesQuery = Sale::query();
 
-        $salesQuery = Sale::query();
-
-        if ($selectedStore !== 'all') {
-            $salesQuery->where('store_id', $selectedStore);
-        }
-
-        if ($selectedUser !== 'all') {
-            $salesQuery->where('user_id', $selectedUser);
-        }
-
-        if ($customStartDate && $customEndDate) {
-            $salesQuery->whereBetween('created_at', [$customStartDate, $customEndDate]);
-        } else {
-            switch ($selectedPeriod) {
-                case 'day':
-                    $salesQuery->whereDate('created_at', Carbon::today());
-                    break;
-                case 'week':
-                    $salesQuery->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-                    break;
-                case 'month':
-                    $salesQuery->whereMonth('created_at', Carbon::now()->month);
-                    break;
+            if ($customStartDate && $customEndDate) {
+                $salesQuery->whereBetween('created_at', [$customStartDate, $customEndDate]);
+            } else {
+                switch ($selectedPeriod) {
+                    case 'week':
+                        $salesQuery->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                        break;
+                    case 'month':
+                        $salesQuery->whereMonth('created_at', Carbon::now()->month);
+                        break;
+                    case 'year':
+                        $salesQuery->whereYear('created_at', Carbon::now()->year);
+                        break;
+                }
             }
-        }
 
-        $salesStatistics = $salesQuery->with(['user', 'store'])
-            ->select('user_id', 'store_id', DB::raw('COUNT(*) as total_sales'), DB::raw('SUM(total_amount) as total_amount'))
-            ->groupBy('user_id', 'store_id')
-            ->get();
+            $totalSales = $salesQuery->count();
+            $totalAmountSoles = $salesQuery->sum('total_amount');
+            $totalAmountDollars = $totalAmountSoles / 3.7; // Asumiendo un tipo de cambio fijo de 3.7
 
-        $topProducts = Sale::with('items.product')
-            ->whereHas('items')
-            ->get()
-            ->flatMap(function ($sale) {
-                return $sale->items;
-            })
-            ->groupBy('product_id')
-            ->map(function ($items) {
-                $product = $items->first()->product;
-                return [
-                    'name' => $product->name,
-                    'total_quantity' => $items->sum('quantity'),
-                    'total_amount' => $items->sum(function ($item) {
-                        return $item->quantity * $item->price;
-                    }),
-                ];
-            })
-            ->sortByDesc('total_quantity')
-            ->values();
+            $data = [
+                'totalProducts' => Product::count(),
+                'totalUsers' => User::count(),
+                'totalSuppliers' => Supplier::count(),
+                'totalSales' => $totalSales,
+                'totalAmountSoles' => $totalAmountSoles,
+                'totalAmountDollars' => $totalAmountDollars,
+                'totalServices' => TechnicalService::count(),
+            ];
 
-        $topProductsByStore = Store::with(['sales.items.product'])
-            ->get()
-            ->mapWithKeys(function ($store) {
-                $products = $store->sales->flatMap(function ($sale) {
+            $stores = Store::all();
+            $users = User::all();
+            
+            $topProducts = $salesQuery->with('items.product')
+                ->get()
+                ->flatMap(function ($sale) {
                     return $sale->items;
                 })
                 ->groupBy('product_id')
                 ->map(function ($items) {
                     $product = $items->first()->product;
+                    $totalAmountSoles = $items->sum(function ($item) {
+                        return $item->quantity * $item->price;
+                    });
                     return [
                         'name' => $product->name,
                         'total_quantity' => $items->sum('quantity'),
-                        'total_amount' => $items->sum(function ($item) {
-                            return $item->quantity * $item->price;
-                        }),
+                        'total_amount_soles' => $totalAmountSoles,
+                        'total_amount_dollars' => $totalAmountSoles / 3.7,
                     ];
                 })
                 ->sortByDesc('total_quantity')
+                ->take(10)
                 ->values();
 
-                return [$store->name => $products];
-            });
+            $topProductsByStore = Store::with(['sales' => function ($query) use ($salesQuery) {
+                    $query->whereIn('id', $salesQuery->pluck('id'));
+                }, 'sales.items.product'])
+                ->get()
+                ->mapWithKeys(function ($store) {
+                    $products = $store->sales->flatMap(function ($sale) {
+                        return $sale->items;
+                    })
+                    ->groupBy('product_id')
+                    ->map(function ($items) {
+                        $product = $items->first()->product;
+                        $totalAmountSoles = $items->sum(function ($item) {
+                            return $item->quantity * $item->price;
+                        });
+                        return [
+                            'name' => $product->name,
+                            'total_quantity' => $items->sum('quantity'),
+                            'total_amount_soles' => $totalAmountSoles,
+                            'total_amount_dollars' => $totalAmountSoles / 3.7,
+                        ];
+                    })
+                    ->sortByDesc('total_quantity')
+                    ->take(5)
+                    ->values();
 
-        $userStatistics = User::with(['sales' => function ($query) use ($selectedStore, $selectedPeriod, $customStartDate, $customEndDate) {
-            if ($selectedStore !== 'all') {
-                $query->where('store_id', $selectedStore);
-            }
+                    return [$store->name => $products];
+                });
+
+            $userStatistics = User::with(['sales' => function ($query) use ($salesQuery) {
+                $query->whereIn('id', $salesQuery->pluck('id'));
+            }])->get()->map(function ($user) {
+                $totalAmountSoles = $user->sales->sum('total_amount');
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'total_sales' => $user->sales->count(),
+                    'total_amount_soles' => $totalAmountSoles,
+                    'total_amount_dollars' => $totalAmountSoles / 3.7,
+                ];
+            })->sortByDesc('total_sales');
+
+            $data['topProducts'] = $topProducts;
+            $data['topProductsByStore'] = $topProductsByStore;
+            $data['stores'] = $stores;
+            $data['users'] = $users;
+            $data['userStatistics'] = $userStatistics;
+            $data['selectedPeriod'] = $selectedPeriod;
+            $data['customStartDate'] = $customStartDate;
+            $data['customEndDate'] = $customEndDate;
+
+            return view('admin.dashboard', $data);
+        } catch (\Exception $e) {
+            Log::error('Error in DashboardController', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Ha ocurrido un error al cargar los datos del dashboard. Por favor, inténtelo de nuevo más tarde.');
+        }
+    }
+
+    public function getUserStats(Request $request, User $user)
+    {
+        try {
+            $period = $request->input('period', 'month');
+            $customStartDate = $request->input('start_date');
+            $customEndDate = $request->input('end_date');
+
+            $query = $user->sales();
+
             if ($customStartDate && $customEndDate) {
                 $query->whereBetween('created_at', [$customStartDate, $customEndDate]);
             } else {
-                switch ($selectedPeriod) {
-                    case 'day':
-                        $query->whereDate('created_at', Carbon::today());
-                        break;
+                switch ($period) {
                     case 'week':
                         $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
                         break;
                     case 'month':
                         $query->whereMonth('created_at', Carbon::now()->month);
                         break;
-                }
-            }
-        }])->get()->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'total_sales' => $user->sales->count(),
-                'total_amount_soles' => $user->sales->sum('total_amount'),
-                'total_amount_dollars' => $user->sales->sum('total_amount') / 3.7, // Asumiendo un tipo de cambio fijo de 3.7
-            ];
-        })->sortByDesc('total_sales');
-
-        $salesByStore = Store::with(['sales' => function ($query) use ($selectedPeriod, $customStartDate, $customEndDate) {
-            if ($customStartDate && $customEndDate) {
-                $query->whereBetween('created_at', [$customStartDate, $customEndDate]);
-            } else {
-                switch ($selectedPeriod) {
-                    case 'day':
-                        $query->whereDate('created_at', Carbon::today());
-                        break;
-                    case 'week':
-                        $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-                        break;
-                    case 'month':
-                        $query->whereMonth('created_at', Carbon::now()->month);
+                    case 'year':
+                        $query->whereYear('created_at', Carbon::now()->year);
                         break;
                 }
             }
-        }])->get()->map(function ($store) {
-            return [
-                'name' => $store->name,
-                'total_sales' => $store->sales->count(),
-                'total_amount' => $store->sales->sum('total_amount'),
+
+            $sales = $query->with('items.product')->get();
+
+            $totalAmountSoles = $sales->sum('total_amount');
+            $totalAmountDollars = $totalAmountSoles / 3.7;
+
+            $stats = [
+                'total_sales' => $sales->count(),
+                'total_amount_soles' => $totalAmountSoles,
+                'total_amount_dollars' => $totalAmountDollars,
+                'products_sold' => $sales->flatMap(function ($sale) {
+                    return $sale->items;
+                })->groupBy(function ($item) {
+                    return $item->product->name;
+                })->map(function ($items) {
+                    $totalSoles = $items->sum(function ($item) {
+                        return $item->quantity * $item->price;
+                    });
+                    return [
+                        'quantity' => $items->sum('quantity'),
+                        'total_soles' => $totalSoles,
+                        'total_dollars' => $totalSoles / 3.7,
+                    ];
+                })->sortByDesc('quantity'),
+                'daily_sales' => $sales->groupBy(function ($sale) {
+                    return $sale->created_at->format('Y-m-d');
+                })->map(function ($sales) {
+                    $totalSoles = $sales->sum('total_amount');
+                    return [
+                        'count' => $sales->count(),
+                        'total_soles' => $totalSoles,
+                        'total_dollars' => $totalSoles / 3.7,
+                    ];
+                }),
             ];
-        })->sortByDesc('total_sales');
 
-        $data['salesStatistics'] = $salesStatistics;
-        $data['topProducts'] = $topProducts;
-        $data['topProductsByStore'] = $topProductsByStore;
-        $data['stores'] = $stores;
-        $data['users'] = $users;
-        $data['selectedStore'] = $selectedStore;
-        $data['selectedUser'] = $selectedUser;
-        $data['selectedPeriod'] = $selectedPeriod;
-        $data['userStatistics'] = $userStatistics;
-        $data['salesByStore'] = $salesByStore;
-        $data['customStartDate'] = $customStartDate;
-        $data['customEndDate'] = $customEndDate;
-
-        return view('admin.dashboard', $data);
+            return view('admin.user_stats', compact('user', 'stats', 'period', 'customStartDate', 'customEndDate'));
+        } catch (\Exception $e) {
+            Log::error('Error in getUserStats', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()
+                ->route('dashboard')
+                ->with('error', 'Ha ocurrido un error al cargar las estadísticas del usuario. Por favor, inténtelo de nuevo más tarde.');
+        }
     }
 }
 
