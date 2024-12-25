@@ -96,7 +96,7 @@
                 <select name="products[${productIndex}][id]" class="flex-grow bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <option value="">-- Selecciona un producto --</option>
                     @foreach ($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
+                        <option value="{{ $product->id }}"> {{ $product->code }} - {{ $product->name }}</option>
                     @endforeach
                 </select>
                 <input type="number" name="products[${productIndex}][quantity]" class="w-24 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Cantidad" min="1">
