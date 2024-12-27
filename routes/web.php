@@ -33,6 +33,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+    // User profile routes
+    Route::get('/profile', [UserController::class, 'editProfile'])->name('users.edit-profile');
+    Route::post('/profile', [UserController::class, 'updateProfile'])->name('users.update-profile');
+
     // Categories routes - explicitly define all routes
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
@@ -97,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
         Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
+        
 
         Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
         

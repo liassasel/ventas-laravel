@@ -15,21 +15,33 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // Validar los datos de entrada
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'login' => 'required|string', // Puede ser username o email
+            'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Intentar autenticación usando email o username
+        $loginType = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        
+        // Reemplazar 'login' por el campo detectado (email o username)
+        $authData = [$loginType => $credentials['login'], 'password' => $credentials['password']];
+
+        if (Auth::attempt($authData)) {
             $user = Auth::user();
+
+            // Verificar si el usuario está activo
             if (!$user->is_active) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Tu cuenta está desactivada.']);
+                return back()->withErrors(['login' => 'Tu cuenta está desactivada.']);
             }
+
+            // Redirigir al usuario a la página principal o dashboard
             return redirect()->intended('/');
         }
 
-        return back()->withErrors(['email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.']);
+        // Si la autenticación falla
+        return back()->withErrors(['login' => 'Las credenciales proporcionadas no coinciden con nuestros registros.']);
     }
 
     public function logout(Request $request)

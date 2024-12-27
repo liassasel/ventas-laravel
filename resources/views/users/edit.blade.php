@@ -15,10 +15,8 @@
     </div>
 
     @if ($errors->any())
-        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Oops!</strong>
-            <span class="block sm:inline">There were some problems with your input.</span>
-            <ul class="mt-3 list-disc list-inside">
+        <div class="mt-4 bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+            <ul class="list-disc list-inside text-sm text-red-400">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -46,6 +44,15 @@
                         <input type="email" name="email" id="email" required value="{{ old('email', $user->email) }}"
                                class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
                                placeholder="Enter user email">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="dni" class="block text-sm font-medium leading-6 text-white">DNI (Optional)</label>
+                    <div class="mt-2">
+                        <input type="text" name="dni" id="dni" value="{{ old('dni', $user->dni) }}"
+                               class="block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                               placeholder="Enter DNI">
                     </div>
                 </div>
 

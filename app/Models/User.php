@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
 
 class User extends Authenticatable
@@ -16,6 +18,9 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'is_technician',
+        'username',
+        'dni',
+        'profile_picture',
     ];
 
     protected $hidden = [
@@ -60,6 +65,13 @@ class User extends Authenticatable
 {
     return $this->hasMany(Sale::class);
 }
+
+public function getProfilePictureUrlAttribute()
+    {
+        return $this->profile_picture
+            ? asset('storage/' . $this->profile_picture)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
+    }
 
     public function canAccessSystem()
     {
