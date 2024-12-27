@@ -164,6 +164,24 @@ class UserController extends Controller
         }
     }
 
+    public function activateNonAdmins()
+    {
+        if (!Auth::user()->is_admin) {
+            return redirect()->route('users.index')->with('error', 'You do not have permission to perform this action.');
+        }
+
+        try {
+            DB::beginTransaction();
+            User::where('is_admin', false)->update(['is_active' => true]);
+            DB::commit();
+            return redirect()->route('users.index')->with('success', 'All non-admin users have been activated.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error activating non-admin users: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while activating non-admin users. Please try again.');
+        }
+    }
+
     public function editProfile()
     {
         $user = Auth::user();

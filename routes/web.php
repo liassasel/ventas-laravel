@@ -101,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggleActive');
         Route::post('/users/deactivate-non-admins', [UserController::class, 'deactivateNonAdmins'])->name('users.deactivateNonAdmins');
+        Route::post('/users/activate-non-admins', [UserController::class, 'activateNonAdmins'])->name('users.activateNonAdmins');
         
 
         Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');

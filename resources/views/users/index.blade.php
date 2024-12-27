@@ -72,15 +72,21 @@
     </div>
 
     @if(auth()->user()->is_admin)
-    <div class="mt-8">
+    <div class="mt-8 flex justify-center space-x-4">
         <form action="{{ route('users.deactivateNonAdmins') }}" method="POST" onsubmit="return confirm('Are you sure you want to deactivate all non-admin users?');">
             @csrf
             <button type="submit" class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">
                 Deactivate All Non-Admin Users
             </button>
         </form>
+
+        <form action="{{ route('users.activateNonAdmins') }}" method="POST" onsubmit="return confirm('Are you sure you want to activate all non-admin users?');">
+            @csrf
+            <button type="submit" class="rounded-md bg-green-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500">
+                Activate All Non-Admin Users
+            </button>
+        </form>
     </div>
     @endif
 </div>
 @endsection
-
