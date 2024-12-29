@@ -32,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
 
     // User profile routes
     Route::get('/profile', [UserController::class, 'editProfile'])->name('users.edit-profile');

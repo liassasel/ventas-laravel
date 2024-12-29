@@ -10,20 +10,27 @@
             <p class="mt-2 text-sm text-gray-400">A list of all the products in your electronics store.</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex sm:space-x-4">
-            <select id="store-selector" onchange="window.location.href='?store_id=' + this.value" class="rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <option value="">Todas las tiendas</option>
-                @foreach($stores as $store)
-                    <option value="{{ $store->id }}" {{ request('store_id') == $store->id ? 'selected' : '' }}>
-                        {{ $store->name }}
-                    </option>
-                @endforeach
-            </select>
+            <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
+                @csrf
+                <input type="file" name="file" required 
+                       class="text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
+                              file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500">
+                <button type="submit" 
+                        class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold 
+                               text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+                               focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    Import Products
+                </button>
+            </form>
             <a href="{{ route('products.create') }}" 
-               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black transition-all hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black 
+                      transition-all hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 
+                      focus-visible:outline-offset-2 focus-visible:outline-white">
                 Add Product
             </a>
         </div>
     </div>
+
 
     <form action="{{ route('products.index') }}" method="GET" class="space-y-4">
         <div class="flex space-x-4">

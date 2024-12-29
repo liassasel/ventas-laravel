@@ -125,6 +125,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'aliases' => [
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    ],
+
     'providers' => [
     /*
      * Laravel Framework Service Providers...
@@ -163,6 +167,7 @@ return [
     App\Providers\AuthServiceProvider::class,
     App\Providers\EventServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
+    Maatwebsite\Excel\ExcelServiceProvider::class,
 ],
 
 

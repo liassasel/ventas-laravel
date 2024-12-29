@@ -7,7 +7,9 @@ use App\Models\Category;
 use App\Models\Store;
 use App\Models\Inventory;
 use App\Services\CurrencyConversionService;
+use App\Imports\ProductsImport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
@@ -70,11 +72,10 @@ class ProductController extends Controller
         $baseCode = $validatedData['code'];
         
         foreach ($serials as $index => $serial) {
-            // Generate a unique code by appending a counter to the base code
             $uniqueCode = $baseCode . '-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT);
             
             Product::create([
-                'code' => $uniqueCode, // Use the unique code instead of the base code
+                'code' => $uniqueCode,
                 'serial' => $serial,
                 'model' => $validatedData['model'],
                 'brand' => $validatedData['brand'],
@@ -97,7 +98,6 @@ class ProductController extends Controller
     
         return redirect()->route('products.index')->with('success', 'Products created successfully.');
     }
-    
 
     public function edit(Product $product)
     {
@@ -141,8 +141,21 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new ProductsImport($this->currencyService), $request->file('file'));
+            return redirect()->route('products.index')->with('success', 'Products imported successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('products.index')->with('error', 'Error importing products: ' . $e->getMessage());
+        }
     }
 }
 
