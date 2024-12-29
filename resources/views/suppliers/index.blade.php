@@ -59,8 +59,12 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $supplier->phone }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-white">{{ $supplier->email }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <a href="{{ route('suppliers.edit', $supplier->id) }}" class="text-[#0070f3] hover:text-[#0761d1]">Editar</a>
-                                        <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" class="inline-block ml-3">
+                                        <a href="{{ route('shipments.create', $supplier->id) }}" 
+                                           class="text-indigo-400 hover:text-indigo-300 mr-3">
+                                            Nuevo Cargamento
+                                        </a>
+                                        <a href="{{ route('suppliers.edit', $supplier->id) }}" class="text-[#0070f3] hover:text-[#0761d1] mr-3">Editar</a>
+                                        <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-400 hover:text-red-300" onclick="return confirm('¿Estás seguro de que quieres eliminar este proveedor?')">
