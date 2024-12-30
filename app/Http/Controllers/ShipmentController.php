@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Supplier;
 use App\Models\Shipment;
-use App\Models\Product;
 use App\Models\ShipmentItem;
+use App\Models\Supplier;
+use App\Models\Store;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,186 +14,225 @@ class ShipmentController extends Controller
 {
     public function index()
     {
-        $shipments = Shipment::with(['supplier', 'items.product'])
-            ->latest()
+        $shipments = Shipment::with(['store', 'supplier'])
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
+        
         return view('shipments.index', compact('shipments'));
     }
 
     public function create()
-    {
-        $suppliers = Supplier::all();
-        $products = Product::all();
-        return view('shipments.create', compact('suppliers', 'products'));
-    }
+{
+    $lastShipment = Shipment::latest()->first();
+    $invoiceNumber = $lastShipment ? str_pad($lastShipment->id + 1, 5, '0', STR_PAD_LEFT) : '00001';
+    $stores = Store::all();
+    
+    return view('shipments.create', compact('invoiceNumber', 'stores'));
+}
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_number' => 'required|string|max:255',
-            'arrival_date' => 'required|date',
-            'notes' => 'nullable|string',
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-            'products.*.unit_price' => 'required|numeric|min:0',
+public function store(Request $request)
+{
+    $request->validate([
+        'store_id' => 'required|exists:stores,id',
+        'invoice_number' => 'required|unique:shipments,invoice_number',
+        'arrival_date' => 'required|date',
+        'products' => 'required|array|min:1',
+        'products.*.name' => 'required|string',
+        'products.*.quantity' => 'required|integer|min:1',
+        'products.*.price' => 'required|numeric|min:0',
+        'notes' => 'nullable|string',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $shipment = Shipment::create([
+            'store_id' => $request->store_id,
+            'invoice_number' => $request->invoice_number,
+            'arrival_date' => $request->arrival_date,
+            'notes' => $request->notes,
+            'status' => 'pending',
+            'total_amount' => 0,
         ]);
 
-        try {
-            DB::beginTransaction();
+        $totalAmount = 0;
 
-            // Calcular el monto total
-            $totalAmount = 0;
-            foreach ($request->products as $product) {
-                $totalAmount += $product['quantity'] * $product['unit_price'];
-            }
-
-            // Crear el shipment
-            $shipment = Shipment::create([
-                'supplier_id' => $request->supplier_id,
-                'invoice_number' => $request->invoice_number,
-                'arrival_date' => $request->arrival_date,
-                'notes' => $request->notes,
-                'total_amount' => $totalAmount,
+        foreach ($request->products as $productData) {
+            $totalPrice = $productData['quantity'] * $productData['price'];
+            
+            ShipmentItem::create([
+                'shipment_id' => $shipment->id,
+                'name' => $productData['name'],
+                'quantity' => $productData['quantity'],
+                'unit_price' => $productData['price'],
+                'total_price' => $totalPrice,
             ]);
 
-            // Crear los items del shipment
-            foreach ($request->products as $product) {
-                $shipment->items()->create([
-                    'product_id' => $product['product_id'],
-                    'quantity' => $product['quantity'],
-                    'unit_price' => $product['unit_price'],
-                    'total_price' => $product['quantity'] * $product['unit_price'],
-                ]);
-
-                // Actualizar el stock del producto
-                $productModel = Product::find($product['product_id']);
-                $productModel->increment('stock', $product['quantity']);
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('shipments.index')
-                ->with('success', 'Cargamento registrado exitosamente.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Error al registrar el cargamento: ' . $e->getMessage());
+            $totalAmount += $totalPrice;
         }
+
+        $shipment->update(['total_amount' => $totalAmount]);
+
+        DB::commit();
+
+        return redirect()->route('shipments.index')
+            ->with('success', 'Cargamento creado exitosamente.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error al crear el cargamento: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     public function show(Shipment $shipment)
     {
-        $shipment->load(['supplier', 'items.product']);
+        $shipment->load(['store', 'supplier', 'items.product']);
         return view('shipments.show', compact('shipment'));
     }
 
     public function edit(Shipment $shipment)
     {
+        if ($shipment->status !== 'pending') {
+            return redirect()->route('shipments.index')
+                ->with('error', 'Solo se pueden editar envíos pendientes.');
+        }
+
         $suppliers = Supplier::all();
-        $products = Product::all();
-        $shipment->load(['supplier', 'items.product']);
-        return view('shipments.edit', compact('shipment', 'suppliers', 'products'));
+        $stores = Store::all();
+        $products = Product::where('stock', '>', 0)->get();
+        
+        return view('shipments.edit', compact('shipment', 'suppliers', 'stores', 'products'));
     }
 
     public function update(Request $request, Shipment $shipment)
     {
+        if ($shipment->status !== 'pending') {
+            return redirect()->route('shipments.index')
+                ->with('error', 'Solo se pueden actualizar envíos pendientes.');
+        }
+
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'invoice_number' => 'required|string|max:255',
+            'store_id' => 'required|exists:stores,id',
             'arrival_date' => 'required|date',
-            'notes' => 'nullable|string',
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
-            'products.*.unit_price' => 'required|numeric|min:0',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Revertir el stock anterior
+            // Restaurar el stock de los productos anteriores
             foreach ($shipment->items as $item) {
-                $item->product->decrement('stock', $item->quantity);
+                $item->product->update([
+                    'stock' => $item->product->stock + $item->quantity
+                ]);
             }
 
-            // Calcular el nuevo monto total
-            $totalAmount = 0;
-            foreach ($request->products as $product) {
-                $totalAmount += $product['quantity'] * $product['unit_price'];
-            }
-
-            // Actualizar el shipment
             $shipment->update([
                 'supplier_id' => $request->supplier_id,
-                'invoice_number' => $request->invoice_number,
+                'store_id' => $request->store_id,
                 'arrival_date' => $request->arrival_date,
                 'notes' => $request->notes,
-                'total_amount' => $totalAmount,
             ]);
 
-            // Eliminar los items anteriores
+            // Eliminar items anteriores
             $shipment->items()->delete();
 
-            // Crear los nuevos items
-            foreach ($request->products as $product) {
-                $shipment->items()->create([
-                    'product_id' => $product['product_id'],
-                    'quantity' => $product['quantity'],
-                    'unit_price' => $product['unit_price'],
-                    'total_price' => $product['quantity'] * $product['unit_price'],
+            $totalAmount = 0;
+
+            foreach ($request->products as $productData) {
+                $product = Product::findOrFail($productData['id']);
+                
+                // Verificar si hay suficiente stock
+                if ($product->stock < $productData['quantity']) {
+                    throw new \Exception("Stock insuficiente para el producto: {$product->name}");
+                }
+
+                $totalPrice = $product->price_soles * $productData['quantity'];
+                
+                ShipmentItem::create([
+                    'shipment_id' => $shipment->id,
+                    'product_id' => $product->id,
+                    'quantity' => $productData['quantity'],
+                    'unit_price' => $product->price_soles,
+                    'total_price' => $totalPrice,
                 ]);
 
                 // Actualizar el stock del producto
-                $productModel = Product::find($product['product_id']);
-                $productModel->increment('stock', $product['quantity']);
+                $product->update([
+                    'stock' => $product->stock - $productData['quantity']
+                ]);
+
+                $totalAmount += $totalPrice;
             }
+
+            $shipment->update(['total_amount' => $totalAmount]);
 
             DB::commit();
 
-            return redirect()
-                ->route('shipments.index')
-                ->with('success', 'Cargamento actualizado exitosamente.');
+            return redirect()->route('shipments.index')
+                ->with('success', 'Envío actualizado exitosamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Error al actualizar el cargamento: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar el envío: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
     public function destroy(Shipment $shipment)
     {
+        if ($shipment->status !== 'pending') {
+            return redirect()->route('shipments.index')
+                ->with('error', 'Solo se pueden eliminar envíos pendientes.');
+        }
+
         try {
             DB::beginTransaction();
-
-            // Revertir el stock de los productos
+            
+            // Restaurar el stock de los productos
             foreach ($shipment->items as $item) {
-                $item->product->decrement('stock', $item->quantity);
+                $item->product->update([
+                    'stock' => $item->product->stock + $item->quantity
+                ]);
             }
-
-            // Eliminar el shipment (esto también eliminará los items por la relación cascade)
+            
+            $shipment->items()->delete();
             $shipment->delete();
-
+            
             DB::commit();
 
-            return redirect()
-                ->route('shipments.index')
-                ->with('success', 'Cargamento eliminado exitosamente.');
+            return redirect()->route('shipments.index')
+                ->with('success', 'Envío eliminado exitosamente.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()
-                ->back()
-                ->with('error', 'Error al eliminar el cargamento: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el envío: ' . $e->getMessage());
         }
+    }
+
+    public function updateStatus(Request $request, Shipment $shipment)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,shipped,delivered,cancelled'
+        ]);
+
+        $shipment->update(['status' => $request->status]);
+
+        return redirect()->route('shipments.index')
+            ->with('success', 'Estado del envío actualizado exitosamente.');
+    }
+
+    public function getProductsBySupplier(Request $request)
+    {
+        $products = Product::where('supplier_id', $request->supplier_id)
+            ->where('stock', '>', 0)
+            ->get();
+            
+        return response()->json($products);
     }
 }
 

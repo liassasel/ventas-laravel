@@ -3,28 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Shipment extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'supplier_id',
         'invoice_number',
-        'total_amount',
+        'supplier_id',
+        'store_id',
         'arrival_date',
+        'total_amount',
+        'status',
         'notes'
     ];
 
     protected $casts = [
-        'arrival_date' => 'date',
-        'total_amount' => 'decimal:2'
+        'arrival_date' => 'date'
     ];
 
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function items()
