@@ -3,21 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ShipmentItem extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'shipment_id',
-        'product_id',
+        'name',
         'quantity',
         'unit_price',
         'total_price'
     ];
 
     protected $casts = [
+        'quantity' => 'integer',
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2'
     ];
@@ -25,11 +23,6 @@ class ShipmentItem extends Model
     public function shipment()
     {
         return $this->belongsTo(Shipment::class);
-    }
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
     }
 }
 

@@ -92,6 +92,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/shipments/{shipment}/edit', [ShipmentController::class, 'edit'])->name('shipments.edit');
         Route::put('/shipments/{shipment}', [ShipmentController::class, 'update'])->name('shipments.update');
         Route::delete('/shipments/{shipment}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
+        Route::get('/shipments/search-suppliers', [ShipmentController::class, 'searchSuppliers'])->name('shipments.search-suppliers');
+        Route::get('/shipments/get-products', [ShipmentController::class, 'getProducts'])->name('shipments.get-products');
 
 
         // Ruta de ventas
