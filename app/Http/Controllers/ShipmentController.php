@@ -192,6 +192,12 @@ class ShipmentController extends Controller
         }
     }
 
+    public function show(Shipment $shipment)
+    {
+    $shipment->load(['store', 'supplier', 'items']);
+    return view('shipments.show', compact('shipment'));
+    }
+
     public function destroy(Shipment $shipment)
     {
         try {
