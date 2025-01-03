@@ -12,12 +12,15 @@ class Shipment extends Model
         'store_id',
         'arrival_date',
         'total_amount',
+        'total_amount_usd',
         'status',
         'notes'
     ];
 
     protected $casts = [
-        'arrival_date' => 'date'
+        'arrival_date' => 'date',
+        'total_amount' => 'decimal:2',
+        'total_amount_usd' => 'decimal:2'
     ];
 
     public function supplier()
