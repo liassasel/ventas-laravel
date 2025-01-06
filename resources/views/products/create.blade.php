@@ -158,6 +158,8 @@
                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm transition-all hover:bg-gray-200">
                     Create Product
                 </button>
+
+                {{-- dlskad;lkasd --}}
             </div>
         </div>
     </form>
