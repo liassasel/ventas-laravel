@@ -87,6 +87,18 @@
                 </div>
 
                 <div class="flex items-center">
+                    <input type="checkbox" name="is_seller" id="is_seller" value="1" {{ old('is_seller') ? 'checked' : '' }}
+                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="is_seller" class="ml-2 block text-sm text-white">Is Seller</label>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="can_add_products" id="can_add_products" value="1" {{ old('can_add_products') ? 'checked' : '' }}
+                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <label for="can_add_products" class="ml-2 block text-sm text-white">Can add Products</label>
+                </div>
+
+                <div class="flex items-center">
                     <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }}
                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                     <label for="is_active" class="ml-2 block text-sm text-white">Is Active</label>
