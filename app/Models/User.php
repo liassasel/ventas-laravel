@@ -18,6 +18,8 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'is_technician',
+        'is_seller',
+        'can_add_products',
         'username',
         'dni',
         'profile_picture',
@@ -33,6 +35,8 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
         'is_technician' => 'boolean',
         'is_active' => 'boolean',
+        'is_seller' => 'boolean',
+        'can_add_products' => 'boolean',
     ];
 
     public function isAdmin()

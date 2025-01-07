@@ -37,6 +37,8 @@
                                     Admin
                                 @elseif($user->is_technician)
                                     Technician
+                                @elseif($user->is_seller)
+                                Seller
                                 @else
                                     User
                                 @endif

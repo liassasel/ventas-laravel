@@ -35,6 +35,8 @@ class UserController extends Controller
             'is_admin' => 'sometimes|boolean',
             'is_technician' => 'sometimes|boolean',
             'is_active' => 'sometimes|boolean',
+            'is_seller' => 'sometimes|boolean',
+            'can_add_products' => 'sometimes|boolean',
         ]);
 
         try {
@@ -49,6 +51,8 @@ class UserController extends Controller
             $user->is_admin = $request->has('is_admin');
             $user->is_technician = $request->has('is_technician');
             $user->is_active = $request->has('is_active', true);
+            $user->is_seller = $request->has('is_seller');
+            $user->can_add_products = $request->has('is_seller');
             $user->save();
 
             DB::commit();
@@ -80,6 +84,8 @@ class UserController extends Controller
             'is_admin' => 'sometimes|boolean',
             'is_technician' => 'sometimes|boolean',
             'is_active' => 'sometimes|boolean',
+            'is_seller' => 'sometimes|boolean',
+            'can_add_products' => 'sometimes|boolean',
         ]);
 
         try {
@@ -96,6 +102,8 @@ class UserController extends Controller
             $user->is_admin = $request->has('is_admin');
             $user->is_technician = $request->has('is_technician');
             $user->is_active = $request->has('is_active');
+            $user->is_seller = $request->has('is_seller');
+            $user->can_add_products = $request->has('is_seller');
             $user->save();
 
             DB::commit();

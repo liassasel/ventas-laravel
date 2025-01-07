@@ -34,6 +34,8 @@ class DatabaseSeeder extends Seeder
                 'is_admin' => true,
                 'is_technician' => true,
                 'is_active' => true,
+                'is_seller' => true,
+                'can_add_products' => true,
             ]
         );
     }
