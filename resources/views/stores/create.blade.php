@@ -1,30 +1,44 @@
 @extends('layouts.app')
 
+@section('title', 'Crear Nueva Tienda')
+
 @section('content')
-<div class="container mx-auto px-4 sm:px-8">
-    <div class="py-8">
-        <h2 class="text-2xl font-semibold leading-tight mb-5">Crear Nueva Tienda</h2>
-        <form action="{{ route('stores.store') }}" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold leading-6 text-white">Crear Nueva Tienda</h1>
+            <p class="mt-2 text-sm text-gray-400">Añade una nueva tienda al sistema</p>
+        </div>
+    </div>
+
+    <div class="mt-8 bg-gray-900/50 p-6 rounded-lg border border-white/10">
+        <form action="{{ route('stores.store') }}" method="POST">
             @csrf
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-                    Nombre
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" name="name" required>
-            </div>
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="address">
-                    Dirección
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="address" type="text" name="address" required>
-            </div>
-            <div class="flex items-center justify-between">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Crear Tienda
-                </button>
-                <a href="{{ route('stores.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
-                    Cancelar
-                </a>
+            <div class="space-y-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-white">
+                        Nombre de la Tienda
+                    </label>
+                    <input type="text" id="name" name="name" required
+                           class="mt-2 block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                </div>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-white">
+                        Dirección
+                    </label>
+                    <input type="text" id="address" name="address" required
+                           class="mt-2 block w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <a href="{{ route('stores.index') }}" 
+                       class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Crear Tienda
+                    </button>
+                </div>
             </div>
         </form>
     </div>

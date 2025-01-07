@@ -1,80 +1,96 @@
 @extends('layouts.app')
 
+@section('title', 'Tiendas')
+
 @section('content')
-<div class="container mx-auto px-4 sm:px-8">
-    <div class="py-8">
-        <div class="flex justify-between">
-            <h2 class="text-2xl font-semibold leading-tight">Tiendas</h2>
-            <a href="{{ route('stores.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Crear Nueva Tienda
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold leading-6 text-white">Tiendas</h1>
+            <p class="mt-2 text-sm text-gray-400">Lista de todas las tiendas en el sistema</p>
+        </div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <a href="{{ route('stores.create') }}" 
+               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black 
+                      transition-all hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 
+                      focus-visible:outline-offset-2 focus-visible:outline-white">
+                Añadir Tienda
             </a>
         </div>
-        <div class="my-2 flex sm:flex-row flex-col">
-            <div class="flex flex-row mb-1 sm:mb-0">
-                <div class="relative">
-                    <select class="appearance-none h-full rounded-l border block w-full bg-white border-gray-400 text-gray-700 py-2 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                        <option>5</option>
-                        <option>10</option>
-                        <option>20</option>
-                    </select>
+    </div>
+
+    @if(session('success'))
+        <div class="mt-4 rounded-md bg-green-500/10 border border-green-500/50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-400">{{ session('success') }}</p>
                 </div>
             </div>
-            <div class="block relative">
-                <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
-                        <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
-                        </path>
-                    </svg>
-                </span>
-                <input placeholder="Buscar" class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none" />
+        </div>
+    @endif
+
+    <!-- Filters -->
+    <div class="mt-8 bg-gray-900/50 p-4 rounded-lg border border-white/10">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center w-full sm:w-64">
+                <input type="text" placeholder="Buscar tiendas..." 
+                       class="w-full rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+            </div>
+            <div class="flex items-center">
+                <label for="perPage" class="text-sm font-medium text-white mr-2">Mostrar:</label>
+                <select id="perPage" class="rounded-md border-0 bg-white/5 px-3 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
             </div>
         </div>
-        <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-            <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                <table class="min-w-full leading-normal">
+    </div>
+
+    <div class="mt-8 flow-root">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle">
+                <table class="min-w-full divide-y divide-gray-700">
                     <thead>
                         <tr>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                ID
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Nombre
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Dirección
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Acciones
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">ID</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Nombre</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Dirección</th>
+                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                <span class="sr-only">Acciones</span>
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-800">
                         @foreach($stores as $store)
-                        <tr>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $store->id }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $store->name }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $store->address }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <a href="{{ route('stores.edit', $store) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Editar</a>
-                                <form action="{{ route('stores.destroy', $store) }}" method="POST" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('¿Estás seguro de que quieres eliminar esta tienda?')">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
+                                    {{ $store->id }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{{ $store->name }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{{ $store->address }}</td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                    <a href="{{ route('stores.edit', $store) }}" class="text-indigo-400 hover:text-indigo-300 mr-3">Editar</a>
+                                    <form action="{{ route('stores.destroy', $store) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-400 hover:text-red-300" onclick="return confirm('¿Estás seguro de que quieres eliminar esta tienda?')">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    
 </div>
 @endsection
 

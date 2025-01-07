@@ -25,9 +25,7 @@
                     </button>
                 </div>
                 <div class="h-0 flex-1 overflow-y-auto pt-5 pb-4">
-                    <div class="flex flex-shrink-0 items-center px-4">
-                        <img class="h-8 w-auto" src="https://assets.vercel.com/image/upload/v1607554385/repositories/vercel/logo.png" alt="Vercel">
-                    </div>
+                    
                     <nav class="mt-5 space-y-1 px-2">
 
                         @if (auth()->user()->is_admin)
@@ -99,23 +97,6 @@
 
                     </nav>
                 </div>
-                <div class="flex flex-shrink-0 border-t border-gray-800 p-4">
-                    <button @click="darkMode = !darkMode" class="flex-shrink-0 group block w-full">
-                        <div class="flex items-center">
-                            <div>
-                                <svg x-show="!darkMode" class="h-6 w-6 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                                </svg>
-                                <svg x-show="darkMode" class="h-6 w-6 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p x-text="darkMode ? 'Light Mode' : 'Dark Mode'" class="text-sm font-medium text-gray-400 group-hover:text-gray-300"></p>
-                            </div>
-                        </div>
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -123,9 +104,7 @@
         <div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
             <div class="flex min-h-0 flex-1 flex-col bg-black">
                 <div class="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-                    <div class="flex flex-shrink-0 items-center px-4">
-                        <img class="h-8 w-auto" src="https://assets.vercel.com/image/upload/v1607554385/repositories/vercel/logo.png" alt="Vercel">
-                    </div>
+                    
                     <nav class="mt-5 flex-1 space-y-1 bg-black px-2">
 
                     @if (auth()->user()->is_admin)
@@ -203,23 +182,6 @@
                     @endif
 
                     </nav>
-                </div>
-                <div class="flex flex-shrink-0 border-t border-gray-800 p-4">
-                    <button @click="darkMode = !darkMode" class="flex-shrink-0 w-full group block">
-                        <div class="flex items-center">
-                            <div>
-                                <svg x-show="!darkMode" class="h-6 w-6 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                                </svg>
-                                <svg x-show="darkMode" class="h-6 w-6 text-gray-400 group-hover:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p x-text="darkMode ? 'Light Mode' : 'Dark Mode'" class="text-sm font-medium text-gray-400 group-hover:text-gray-300"></p>
-                            </div>
-                        </div>
-                    </button>
                 </div>
             </div>
         </div>
