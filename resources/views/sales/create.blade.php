@@ -12,7 +12,7 @@
     </div>
 
     @if ($errors->any())
-        <div class="bg-red-500 text-white p-4 mb-6 rounded-lg">
+        <div class="bg-red-500/10 border border-red-500/50 text-red-700 p-4 mb-6 rounded-lg">
             <ul class="list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -91,16 +91,16 @@
 
         addProductButton.addEventListener('click', function() {
             const productRow = document.createElement('div');
-            productRow.className = 'product-row flex items-center space-x-2';
+            productRow.className = 'product-row bg-gray-700/50 p-4 rounded-lg flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2';
             productRow.innerHTML = `
-                <select name="products[${productIndex}][id]" class="flex-grow bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                <select name="products[${productIndex}][id]" class="flex-grow bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2 md:mb-0">
                     <option value="">-- Selecciona un producto --</option>
                     @foreach ($products as $product)
-                        <option value="{{ $product->id }}"> {{ $product->code }} - {{ $product->name }}</option>
+                        <option value="{{ $product->id }}">{{ $product->code }} - {{ $product->name }}</option>
                     @endforeach
                 </select>
-                <input type="number" name="products[${productIndex}][quantity]" class="w-24 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Cantidad" min="1">
-                <button type="button" class="remove-product bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200">
+                <input type="number" name="products[${productIndex}][quantity]" class="w-full md:w-24 bg-gray-700 text-white border border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2 md:mb-0" placeholder="Cantidad" min="1">
+                <button type="button" class="remove-product w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200">
                     Eliminar
                 </button>
             `;
