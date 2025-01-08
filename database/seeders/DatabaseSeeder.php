@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@admin.com'],
             [
                 'name' => 'Admin',
-                'username' => 'Alessail',
+                'username' => 'AdminAbel',
                 'password' => bcrypt('password'),
                 'is_admin' => true,
                 'is_technician' => true,

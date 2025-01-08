@@ -21,6 +21,7 @@
                     <thead>
                         <tr>
                             <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Name</th>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Username</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Email</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Role</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
@@ -31,6 +32,7 @@
                         @foreach($users as $user)
                         <tr>
                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ $user->name }}</td>
+                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ $user->username }}</td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{{ $user->email }}</td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                                 @if($user->is_admin)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Store;
+use App\Models\Inventory;
 use App\Services\CurrencyConversionService;
 use App\Imports\ProductsImport;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'mainStore']);
+        $query = Product::with(['category', 'mainStore'])->where('stock', '>', 0);
     
         if ($request->filled('store_id')) {
             $query->where('main_store_id', $request->store_id);
@@ -33,11 +34,12 @@ class ProductController extends Controller
     
         $query->orderBy('created_at', 'desc');
     
-        $products = $query->paginate(10)->appends(($request->query()));
+        $products = $query->paginate(10);
         $categories = Category::all();
         $stores = Store::all();
+        $totalProducts = Product::count();
     
-        return view('products.index', compact('products', 'categories', 'stores'));
+        return view('products.index', compact('products', 'categories', 'stores', 'totalProducts'));
     }
 
     public function create()
@@ -50,33 +52,52 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|unique:products|max:255',
+            'code' => 'required|max:255',
+            'serial' => 'required|string',
+            'model' => 'nullable|max:255',
+            'brand' => 'nullable|max:255',
+            'color' => 'nullable|max:255',
             'name' => 'required|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'currency' => 'required|in:PEN,USD',
-            'stock' => 'required|integer|min:0',
-            'category_id' => 'required|exists:categories,id',
+            'stock' => 'required|integer|min:1',
             'main_store_id' => 'required|exists:stores,id',
-            'serial' => 'required|string',
-            'model' => 'required|string',
-            'brand' => 'required|string',
-            'color' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
         ]);
-
-        if ($validatedData['currency'] === 'PEN') {
-            $validatedData['price_soles'] = $validatedData['price'];
-            $validatedData['price_dollars'] = $this->currencyService->convertSolesToDollars($validatedData['price']);
-        } else {
-            $validatedData['price_dollars'] = $validatedData['price'];
-            $validatedData['price_soles'] = $this->currencyService->convertDollarsToSoles($validatedData['price']);
+    
+        $serials = explode("\n", $validatedData['serial']);
+        $serials = array_map('trim', $serials);
+        $serials = array_filter($serials);
+    
+        $baseCode = $validatedData['code'];
+        
+        foreach ($serials as $index => $serial) {
+            $uniqueCode = $baseCode . '-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT);
+            
+            Product::create([
+                'code' => $uniqueCode,
+                'serial' => $serial,
+                'model' => $validatedData['model'],
+                'brand' => $validatedData['brand'],
+                'color' => $validatedData['color'],
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'price_dollars' => $validatedData['currency'] === 'USD'
+                    ? $validatedData['price']
+                    : $this->currencyService->convertSolesToDollars($validatedData['price']),
+                'price_soles' => $validatedData['currency'] === 'PEN'
+                    ? $validatedData['price']
+                    : $this->currencyService->convertDollarsToSoles($validatedData['price']),
+                'currency' => $validatedData['currency'],
+                'stock' => 1,
+                'main_store_id' => $validatedData['main_store_id'],
+                'category_id' => $validatedData['category_id'],
+                'status' => 1,
+            ]);
         }
-
-        unset($validatedData['price'], $validatedData['currency']);
-
-        Product::create($validatedData);
-
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+    
+        return redirect()->route('products.index')->with('success', 'Products created successfully.');
     }
 
     public function edit(Product $product)
