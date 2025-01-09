@@ -10,6 +10,7 @@ use App\Services\CurrencyConversionService;
 use App\Imports\ProductsImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -18,6 +19,14 @@ class ProductController extends Controller
     public function __construct(CurrencyConversionService $currencyService)
     {
         $this->currencyService = $currencyService;
+    }
+
+    // Método privado para verificar permisos
+    private function checkPermission()
+    {
+        if (!Auth::check() || (!Auth::user()->can_add_products && !Auth::user()->is_admin)) {
+            abort(403, 'No tienes permiso para acceder a esta sección.');
+        }
     }
 
     public function index(Request $request)
@@ -44,6 +53,8 @@ class ProductController extends Controller
 
     public function create()
     {
+        $this->checkPermission();
+        
         $categories = Category::all();
         $stores = Store::all();
         return view('products.create', compact('categories', 'stores'));
@@ -51,6 +62,8 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission();
+
         $validatedData = $request->validate([
             'code' => 'required|max:255',
             'serial' => 'required|string',
@@ -102,6 +115,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        $this->checkPermission();
+
         $categories = Category::all();
         $stores = Store::all();
         return view('products.edit', compact('product', 'categories', 'stores'));
@@ -109,6 +124,8 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $this->checkPermission();
+
         $validatedData = $request->validate([
             'code' => 'required|unique:products,code,' . $product->id . '|max:255',
             'name' => 'required|max:255',
@@ -141,12 +158,16 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $this->checkPermission();
+
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 
     public function import(Request $request)
     {
+        $this->checkPermission();
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
         ]);

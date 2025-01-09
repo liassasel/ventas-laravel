@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -15,32 +15,41 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validar los datos de entrada
         $credentials = $request->validate([
-            'login' => 'required|string', // Puede ser username o email
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Intentar autenticación usando email o username
         $loginType = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        
-        // Reemplazar 'login' por el campo detectado (email o username)
         $authData = [$loginType => $credentials['login'], 'password' => $credentials['password']];
 
         if (Auth::attempt($authData)) {
             $user = Auth::user();
 
-            // Verificar si el usuario está activo
             if (!$user->is_active) {
                 Auth::logout();
+                Log::warning('Inactive user attempted to log in', ['user_id' => $user->id, 'email' => $user->email]);
                 return back()->withErrors(['login' => 'Tu cuenta está desactivada.']);
             }
 
-            // Redirigir al usuario a la página principal o dashboard
-            return redirect()->intended('/');
+            Log::info('User logged in successfully', ['user_id' => $user->id, 'email' => $user->email, 'roles' => $this->getUserRoles($user)]);
+
+            $request->session()->regenerate();
+
+            if ($user->is_admin) {
+                return redirect()->intended('/dashboard');
+            } elseif ($user->is_seller) {
+                return redirect()->intended('/sales');
+            } elseif ($user->is_technician) {
+                return redirect()->intended('/technical_services');
+            } elseif ($user->can_add_products) {
+                return redirect()->intended('/products');
+            } else {
+                return redirect()->intended('/');
+            }
         }
 
-        // Si la autenticación falla
+        Log::warning('Failed login attempt', ['login' => $credentials['login']]);
         return back()->withErrors(['login' => 'Las credenciales proporcionadas no coinciden con nuestros registros.']);
     }
 
@@ -52,13 +61,14 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
-    public function deactivateNonAdmins()
+    private function getUserRoles($user)
     {
-        if (!Auth::user()->is_admin) {
-            return redirect()->back()->with('error', 'No tienes permiso para realizar esta acción.');
-        }
-
-        User::where('is_admin', false)->update(['is_active' => false]);
-        return redirect()->back()->with('success', 'Usuarios no administradores desactivados.');
+        $roles = [];
+        if ($user->is_admin) $roles[] = 'admin';
+        if ($user->is_seller) $roles[] = 'seller';
+        if ($user->is_technician) $roles[] = 'technician';
+        if ($user->can_add_products) $roles[] = 'can_add_products';
+        return $roles;
     }
 }
+
