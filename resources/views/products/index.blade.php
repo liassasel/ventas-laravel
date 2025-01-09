@@ -11,6 +11,7 @@
         </div>
     </div>
 
+    @if((auth()->user()->can_add_products && !auth()->user()->is_seller) || auth()->user()->is_admin)
     <div class="mt-8 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
         <div class="flex-1">
             <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
@@ -33,6 +34,7 @@
             Add Product
         </a>
     </div>
+    @endif
 
     @if(session('success'))
         <div class="mt-4 rounded-md bg-green-500/10 border border-green-500/50 p-4">

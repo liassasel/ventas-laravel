@@ -9,6 +9,8 @@
             <h1 class="text-2xl font-semibold leading-6 text-white">Categories</h1>
             <p class="mt-2 text-sm text-gray-400">A list of all the categories in your electronics store.</p>
         </div>
+
+        @if((auth()->user()->can_add_products && !auth()->user()->is_seller) || auth()->user()->is_admin)
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <a href="{{ route('categories.create') }}" 
                class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black 
@@ -17,6 +19,7 @@
                 Add Category
             </a>
         </div>
+        @endif
     </div>
 
     <div class="mt-8 flow-root">
@@ -53,7 +56,9 @@
                                     <tr class="hover:bg-white/5">
                                         <td class="whitespace-nowrap py-4  pr-3 text-sm font-medium text-white sm:pl-0 pl-8">-- {{ $child->name }}</td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{{ $category->name }}</td>
+                                        
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                            @if((auth()->user()->can_add_products && !auth()->user()->is_seller) || auth()->user()->is_admin)
                                             <a href="{{ route('categories.edit', $child->id) }}" class="text-[#0070f3] hover:text-[#0761d1]">Edit</a>
                                             <form action="{{ route('categories.destroy', $child->id) }}" method="POST" class="inline-block ml-3">
                                                 @csrf
@@ -62,6 +67,7 @@
                                                     Delete
                                                 </button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
