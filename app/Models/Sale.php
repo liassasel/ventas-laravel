@@ -20,7 +20,8 @@ class Sale extends Model
         'cliente_ruc',
         'cliente_dni',
         'numero_guia',
-        'fecha_facturacion'
+        'fecha_facturacion',
+        'invoice_id'
     ];
 
     protected $casts = [

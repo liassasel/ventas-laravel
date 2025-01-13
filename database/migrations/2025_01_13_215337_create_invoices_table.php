@@ -11,8 +11,11 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sale_id')->constrained()->onDelete('cascade');
-            $table->string('invoice_number')->unique();
-            $table->decimal('total_amount', 10, 2);
+            $table->string('serie');
+            $table->string('correlativo');
+            $table->text('xml');
+            $table->string('hash');
+            $table->text('cdr')->nullable();
             $table->string('status');
             $table->timestamps();
         });
