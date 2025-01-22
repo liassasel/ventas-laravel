@@ -7,6 +7,7 @@ use App\Models\SaleItem;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\ProductSold;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Invoice;
 use App\Services\GreenterService;
@@ -34,6 +35,35 @@ class SaleController extends Controller
     {
         $this->greenterService = $greenterService;
     }
+
+    public function index(Request $request)
+{
+    $query = Sale::with(['store', 'user', 'items.product', 'invoice']);
+
+    // Filtrar por fecha si se proporcionan los parámetros
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('created_at', [
+            $request->start_date . ' 00:00:00',
+            $request->end_date . ' 23:59:59'
+        ]);
+    }
+
+    // Filtrar por estado si se proporciona
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Ordenar por fecha de creación descendente
+    $query->orderBy('created_at', 'desc');
+
+    // Paginar los resultados
+    $sales = $query->paginate(10);
+
+    // Obtener vendedores para el filtro
+    $sellers = User::where('is_seller', true)->get();
+
+    return view('sales.index', compact('sales', 'sellers'));
+}
 
     public function create()
     {

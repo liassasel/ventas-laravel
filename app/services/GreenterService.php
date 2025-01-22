@@ -10,8 +10,8 @@ use Greenter\Model\Sale\SaleDetail;
 use Greenter\Model\Sale\Legend;
 use Greenter\See;
 use Greenter\Ws\Services\SunatEndpoints;
-use Greenter\XMLSecLibs\Certificate\X509Certificate;
-use Greenter\Report\XmlUtils;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class GreenterService
 {
@@ -20,104 +20,127 @@ class GreenterService
 
     public function __construct()
     {
-        $this->see = new See();
-        $this->see->setCertificate(file_get_contents(storage_path('app/certificates/certificate.pem')));
-        $this->see->setService(SunatEndpoints::FE_BETA);
+        $this->initializeSee();
+        $this->initializeCompany();
+    }
 
+    protected function initializeSee()
+    {
+        $this->see = new See();
+        
+        try {
+            $certificatePath = storage_path('app/certificates/certificate.pem');
+            
+            if (!file_exists($certificatePath)) {
+                throw new Exception("El certificado no existe en: $certificatePath");
+            }
+
+            $certificate = file_get_contents($certificatePath);
+            if ($certificate === false) {
+                throw new Exception("No se pudo leer el certificado");
+            }
+
+            $this->see->setCertificate($certificate);
+            $this->see->setService(SunatEndpoints::FE_BETA);
+
+        } catch (Exception $e) {
+            Log::error('Error inicializando SEE: ' . $e->getMessage());
+            throw new Exception('Error al configurar el certificado digital: ' . $e->getMessage());
+        }
+    }
+
+    protected function initializeCompany()
+    {
         $this->company = new Company();
-        $this->company->setRuc('20000000001')
-            ->setRazonSocial('EMPRESA S.A.C.')
-            ->setNombreComercial('EMPRESA')
+        $this->company->setRuc(config('greenter.company.ruc', '20000000001'))
+            ->setRazonSocial(config('greenter.company.razon_social', 'EMPRESA S.A.C.'))
+            ->setNombreComercial(config('greenter.company.nombre_comercial', 'EMPRESA'))
             ->setAddress((new Address())
-                ->setUbigueo('150101')
-                ->setDepartamento('LIMA')
-                ->setProvincia('LIMA')
-                ->setDistrito('LIMA')
-                ->setUrbanizacion('NONE')
-                ->setDireccion('AV LS 123'));
+                ->setUbigueo(config('greenter.company.address.ubigeo', '150101'))
+                ->setDepartamento(config('greenter.company.address.departamento', 'LIMA'))
+                ->setProvincia(config('greenter.company.address.provincia', 'LIMA'))
+                ->setDistrito(config('greenter.company.address.distrito', 'LIMA'))
+                ->setUrbanizacion(config('greenter.company.address.urbanizacion', 'NONE'))
+                ->setDireccion(config('greenter.company.address.direccion', 'AV LS 123')));
     }
 
     public function generateInvoice($sale)
     {
-        $client = new Client();
-        $client->setTipoDoc('6')
-            ->setNumDoc($sale->cliente_ruc)
-            ->setRznSocial($sale->cliente_nombre);
+        try {
+            $client = new Client();
+            $client->setTipoDoc('6')
+                ->setNumDoc($sale->cliente_ruc)
+                ->setRznSocial($sale->cliente_nombre);
 
-        $invoice = (new Invoice())
-            ->setUblVersion('2.1')
-            ->setTipoOperacion('0101')
-            ->setTipoDoc('01')
-            ->setSerie('F001')
-            ->setCorrelativo((string)$sale->id)
-            ->setFechaEmision(new \DateTime())
-            ->setTipoMoneda('PEN')
-            ->setClient($client)
-            ->setCompany($this->company)
-            ->setMtoOperGravadas($sale->total_amount / 1.18)
-            ->setMtoIGV($sale->total_amount - ($sale->total_amount / 1.18))
-            ->setTotalImpuestos($sale->total_amount - ($sale->total_amount / 1.18))
-            ->setValorVenta($sale->total_amount / 1.18)
-            ->setMtoImpVenta($sale->total_amount);
+            $invoice = (new Invoice())
+                ->setUblVersion('2.1')
+                ->setTipoOperacion('0101')
+                ->setTipoDoc('01')
+                ->setSerie('F001')
+                ->setCorrelativo((string)$sale->id)
+                ->setFechaEmision(new \DateTime())
+                ->setTipoMoneda('PEN')
+                ->setClient($client)
+                ->setCompany($this->company)
+                ->setMtoOperGravadas($sale->total_amount / 1.18)
+                ->setMtoIGV($sale->total_amount - ($sale->total_amount / 1.18))
+                ->setTotalImpuestos($sale->total_amount - ($sale->total_amount / 1.18))
+                ->setValorVenta($sale->total_amount / 1.18)
+                ->setMtoImpVenta($sale->total_amount);
 
-        $items = [];
-        foreach ($sale->items as $item) {
-            $items[] = (new SaleDetail())
-                ->setCodProducto($item->product->code)
-                ->setUnidad('NIU')
-                ->setCantidad($item->quantity)
-                ->setMtoValorUnitario($item->price / 1.18)
-                ->setDescripcion($item->product->name)
-                ->setMtoBaseIgv($item->price * $item->quantity / 1.18)
-                ->setPorcentajeIgv(18)
-                ->setIgv(($item->price * $item->quantity) - ($item->price * $item->quantity / 1.18))
-                ->setTipAfeIgv('10')
-                ->setTotalImpuestos(($item->price * $item->quantity) - ($item->price * $item->quantity / 1.18))
-                ->setMtoValorVenta($item->price * $item->quantity / 1.18)
-                ->setMtoPrecioUnitario($item->price);
-        }
+            $items = [];
+            foreach ($sale->items as $item) {
+                $items[] = (new SaleDetail())
+                    ->setCodProducto($item->product->code)
+                    ->setUnidad('NIU')
+                    ->setCantidad($item->quantity)
+                    ->setMtoValorUnitario($item->price / 1.18)
+                    ->setDescripcion($item->product->name)
+                    ->setMtoBaseIgv($item->price * $item->quantity / 1.18)
+                    ->setPorcentajeIgv(18)
+                    ->setIgv(($item->price * $item->quantity) - ($item->price * $item->quantity / 1.18))
+                    ->setTipAfeIgv('10')
+                    ->setTotalImpuestos(($item->price * $item->quantity) - ($item->price * $item->quantity / 1.18))
+                    ->setMtoValorVenta($item->price * $item->quantity / 1.18)
+                    ->setMtoPrecioUnitario($item->price);
+            }
 
-        $invoice->setDetails($items);
+            $invoice->setDetails($items);
 
-        $legend = (new Legend())
-            ->setCode('1000')
-            ->setValue('SON ' . $this->convertNumberToWords($sale->total_amount) . ' SOLES');
+            $legend = (new Legend())
+                ->setCode('1000')
+                ->setValue('SON ' . $this->convertNumberToWords($sale->total_amount) . ' SOLES');
 
-        $invoice->setLegends([$legend]);
+            $invoice->setLegends([$legend]);
 
-        $result = $this->see->send($invoice);
-
-        // Si la factura se generó correctamente
-        if ($result->isSuccess()) {
-            // Obtener el XML firmado
-            $xml = $this->see->getFactory()->getLastXml();
+            $result = $this->see->send($invoice);
             
-            // Obtener el CDR (Constancia de Recepción)
-            $cdr = $result->getCdrResponse();
-            
-            // Obtener el código hash del documento
-            $hash = (new XmlUtils())->getHashSign($xml);
+            if (!$result->isSuccess()) {
+                throw new Exception($result->getError()->getMessage());
+            }
 
             return (object)[
                 'success' => true,
-                'xml' => $xml,
-                'cdr' => $cdr->getDescription(),
-                'hash' => $hash,
                 'serie' => $invoice->getSerie(),
-                'correlativo' => $invoice->getCorrelativo()
+                'correlativo' => $invoice->getCorrelativo(),
+                'xml' => $this->see->getFactory()->getLastXml(),
+                'hash' => $result->getHash(),
+                'cdr' => $result->getCdrResponse()->getDescription()
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Error generando factura electrónica: ' . $e->getMessage());
+            return (object)[
+                'success' => false,
+                'error' => $e->getMessage()
             ];
         }
-
-        return (object)[
-            'success' => false,
-            'error' => $result->getError()->getMessage()
-        ];
     }
 
     private function convertNumberToWords($number)
     {
-        // Implementa la lógica para convertir números a palabras
-        return "CIEN"; // Ejemplo simplificado
+        // Implementación simple para ejemplo
+        return "CIEN";
     }
 }
 
