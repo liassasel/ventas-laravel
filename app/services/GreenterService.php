@@ -25,29 +25,33 @@ class GreenterService
     }
 
     protected function initializeSee()
-    {
+{
+    try {
         $this->see = new See();
         
-        try {
-            $certificatePath = storage_path('app/certificates/certificate.pem');
-            
-            if (!file_exists($certificatePath)) {
-                throw new Exception("El certificado no existe en: $certificatePath");
-            }
-
-            $certificate = file_get_contents($certificatePath);
-            if ($certificate === false) {
-                throw new Exception("No se pudo leer el certificado");
-            }
-
-            $this->see->setCertificate($certificate);
-            $this->see->setService(SunatEndpoints::FE_BETA);
-
-        } catch (Exception $e) {
-            Log::error('Error inicializando SEE: ' . $e->getMessage());
-            throw new Exception('Error al configurar el certificado digital: ' . $e->getMessage());
+        $certificatePath = storage_path('app/certificates/LLAMAPECERTIFICADODEMO20452578951.pem');
+        
+        if (!file_exists($certificatePath)) {
+            throw new Exception("El certificado no existe en: $certificatePath");
         }
+
+        $pfx = file_get_contents($certificatePath);
+        if ($pfx === false) {
+            throw new Exception("No se pudo leer el certificado");
+        }
+
+        // Asegúrate de que el certificado esté en el formato correcto
+        $this->see->setCertificate($pfx);
+        
+        // Configura el servicio para ambiente Beta
+        $this->see->setService(SunatEndpoints::FE_BETA);
+
+        Log::info('Certificado configurado correctamente');
+    } catch (Exception $e) {
+        Log::error('Error al configurar el certificado: ' . $e->getMessage());
+        throw new Exception('Error al configurar el certificado digital: ' . $e->getMessage());
     }
+}
 
     protected function initializeCompany()
     {

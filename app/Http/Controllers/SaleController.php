@@ -79,112 +79,106 @@ class SaleController extends Controller
     }
 
     public function store(Request $request)
-    {
-        Log::info('Sale store method called', $request->all());
+{
+    Log::info('Sale store method called', $request->all());
 
+    try {
         $validatedData = $request->validate([
+            'cliente_nombre' => 'required|string|max:255',
+            'cliente_ruc' => 'required|string|size:11',
+            'cliente_telefono' => 'nullable|string|max:20',
+            'cliente_correo' => 'nullable|email|max:255',
+            'cliente_dni' => 'nullable|string|max:8',
             'store_id' => 'required|exists:stores,id',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
-            'cliente_nombre' => 'required|string|max:255',
-            'cliente_telefono' => 'nullable|string|max:20',
-            'cliente_correo' => 'nullable|email|max:255',
-            'cliente_ruc' => 'nullable|string|max:20',
-            'cliente_dni' => 'nullable|string|max:20',
         ]);
 
         DB::beginTransaction();
 
-        try {
-            // Verificar stock antes de crear la venta
-            foreach ($validatedData['products'] as $productData) {
-                $product = Product::find($productData['id']);
-                if (!$product || $product->stock <= 0) {
-                    throw new \Exception("El producto {$product->name} no tiene stock disponible.");
-                }
+        // Crear la venta
+        $sale = Sale::create([
+            'client_name' => $validatedData['cliente_nombre'],
+            'client_ruc' => $validatedData['cliente_ruc'],
+            'client_phone' => $validatedData['cliente_telefono'],
+            'client_email' => $validatedData['cliente_correo'],
+            'client_dni' => $validatedData['cliente_dni'],
+            'store_id' => $validatedData['store_id'],
+            'user_id' => Auth::id(),
+            'status' => 'completed'
+        ]);
+
+        $subtotal = 0;
+        foreach ($validatedData['products'] as $productData) {
+            $product = Product::findOrFail($productData['id']);
+            
+            if ($product->stock < $productData['quantity']) {
+                throw new \Exception("Stock insuficiente para el producto: {$product->name}");
             }
 
-            $lastSale = Sale::latest()->first();
-            $numeroGuia = $lastSale ? str_pad($lastSale->id + 1, 5, '0', STR_PAD_LEFT) : '00001';
+            $itemSubtotal = $product->price_soles * $productData['quantity'];
+            $subtotal += $itemSubtotal;
 
-            $sale = Sale::create([
-                'store_id' => $validatedData['store_id'],
-                'user_id' => Auth::id(),
-                'total_amount' => 0,
-                'status' => 'completed',
-                'cliente_nombre' => $validatedData['cliente_nombre'],
-                'cliente_telefono' => $validatedData['cliente_telefono'],
-                'cliente_correo' => $validatedData['cliente_correo'],
-                'cliente_ruc' => $validatedData['cliente_ruc'],
-                'cliente_dni' => $validatedData['cliente_dni'],
-                'numero_guia' => $numeroGuia,
-                'fecha_facturacion' => Carbon::now(),
+            // Crear item de venta
+            $sale->items()->create([
+                'product_id' => $product->id,
+                'quantity' => $productData['quantity'],
+                'price' => $product->price_soles,
+                'subtotal' => $itemSubtotal,
+                'is_service' => false
             ]);
 
-            $totalAmount = 0;
-
-            foreach ($validatedData['products'] as $productData) {
-                $product = Product::findOrFail($productData['id']);
-                
-                // Actualizar el stock del producto
-                $product->stock -= $productData['quantity'];
-                $product->save();
-
-                // Crear el item de venta
-                $saleItem = $sale->items()->create([
-                    'product_id' => $product->id,
-                    'quantity' => $productData['quantity'],
-                    'price' => $product->price_soles,
-                ]);
-
-                $totalAmount += $product->price_soles * $productData['quantity'];
-
-                // Registrar el producto como vendido
-                ProductSold::create([
-                    'product_id' => $product->id,
-                    'sale_id' => $sale->id,
-                    'store_id' => $validatedData['store_id'],
-                    'user_id' => Auth::id(),
-                    'price' => $product->price_soles,
-                    'serial' => $product->serial,
-                    'fecha_venta' => now(),
-                ]);
-            }
-
-            $sale->total_amount = $totalAmount;
-            $sale->save();
-
-            // Generar factura electrónica
-            $result = $this->greenterService->generateInvoice($sale);
-
-            if ($result->success) {
-                // Guardar información de la factura
-                $invoice = new Invoice([
-                    'sale_id' => $sale->id,
-                    'serie' => $result->serie,
-                    'correlativo' => $result->correlativo,
-                    'xml' => $result->xml,
-                    'hash' => $result->hash,
-                    'cdr' => $result->cdr,
-                    'status' => 'emitida'
-                ]);
-                $invoice->save();
-
-                DB::commit();
-                Log::info('Sale and invoice created successfully', ['sale_id' => $sale->id]);
-
-                return redirect()->route('sales.index')
-                    ->with('success', 'Venta y factura electrónica completadas exitosamente.');
-            } else {
-                throw new \Exception("Error al generar factura electrónica: " . $result->error);
-            }
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error creating sale and invoice', ['error' => $e->getMessage()]);
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            // Actualizar stock
+            $product->decrement('stock', $productData['quantity']);
         }
+
+        // Calcular IGV y total
+        $igv = $subtotal * 0.18;
+        $total = $subtotal + $igv;
+
+        // Actualizar totales en la venta
+        $sale->update([
+            'subtotal' => $subtotal,
+            'igv' => $igv,
+            'total_amount' => $total
+        ]);
+
+        // Generar factura electrónica
+        $result = $this->greenterService->generateInvoice($sale);
+
+        if (!$result->success) {
+            throw new \Exception($result->error);
+        }
+
+        // Guardar la factura
+        Invoice::create([
+            'sale_id' => $sale->id,
+            'serie' => $result->serie,
+            'correlativo' => $result->correlativo,
+            'xml' => $result->xml,
+            'hash' => $result->hash,
+            'cdr' => $result->cdr,
+            'status' => 'emitida'
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Venta creada exitosamente',
+            'redirect' => route('sales.show', $sale->id)
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollback();
+        Log::error('Error en venta: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 422);
     }
+}
 
     private function generateElectronicInvoice(Sale $sale)
     {
