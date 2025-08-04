@@ -1,0 +1,66 @@
+
+services:
+  app:
+    build: .
+    container_name: ventas-laravel-app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - ./node_modules:/var/www/html/node_modules
+    ports:
+      - "8000:80"
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: VentasLaravel
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123456789
+    networks:
+      - ventas-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    container_name: ventas-laravel-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: VentasLaravel
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d VentasLaravel"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5444:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ventas-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ventas-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ventas.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    networks:
+      - ventas-network
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+  node_modules:
+
+networks:
+  ventas-network:
+    driver: bridge
